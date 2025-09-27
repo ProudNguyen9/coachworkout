@@ -12,3 +12,4 @@ export 'workout_library.dart';
 export 'childs_workout_library_screen/at_home_screen.dart';
 export 'childs_workout_library_screen/at_gym_screen.dart';
 export 'childs_workout_library_screen/meal_plan_screen.dart';
+export 'profile_screen.dart';

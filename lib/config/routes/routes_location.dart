@@ -10,4 +10,5 @@ class RouteLocation {
   static String get onboarding => '/onboarding';
   static String get profilesetup => '/profilesetup';
   static String get wourkoutlibrary => '/wourkoutlibrary';
+  static String get profile => '/profile';
 }

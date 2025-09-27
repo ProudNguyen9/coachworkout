@@ -16,3 +16,5 @@ export 'common_tip.dart';
 export 'common_banner_child.dart';
 export 'common_gym_card.dart';
 export 'common_card_food.dart';
+export 'active_chart.dart';
+export 'infor_card.dart';

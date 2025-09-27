@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "369925696729",
+    "project_id": "coachworker-828c4",
+    "storage_bucket": "coachworker-828c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369925696729:android:00eeb3140c979cecb3a2c8",
+        "android_client_info": {
+          "package_name": "com.example.coach_workout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "369925696729-h0bcqqlaf6urtk4sdhtvp64ve3m8q2rh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coach_workout",
+            "certificate_hash": "27c425a2c754e3a31e1c995fe906d37d08d99417"
+          }
+        },
+        {
+          "client_id": "369925696729-maubqu5gdh3ii2llr64cfht0erc062jh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwovrqzBKKKGAO7k6xdtCnII6C8p53xfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "369925696729-maubqu5gdh3ii2llr64cfht0erc062jh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

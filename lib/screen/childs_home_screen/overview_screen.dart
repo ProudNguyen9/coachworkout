@@ -172,19 +172,57 @@ class OverviewScreen extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          'AI\nTraining',
-                          style: GoogleFonts.montserrat(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 20,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 9,
+                          left: 10,
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(
+                                255,
+                                227,
+                                225,
+                                225,
+                              ).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                      ),
+                        Positioned(
+                          top: 9,
+                          right: 10,
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(
+                                255,
+                                227,
+                                225,
+                                225,
+                              ).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Text(
+                              'AI\nTraining',
+                              style: GoogleFonts.montserrat(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -206,19 +244,57 @@ class OverviewScreen extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          'AI\nCoaching',
-                          style: GoogleFonts.montserrat(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 20,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 9,
+                          left: 10,
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(
+                                255,
+                                227,
+                                225,
+                                225,
+                              ).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                      ),
+                        Positioned(
+                          top: 9,
+                          right: 10,
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(
+                                255,
+                                227,
+                                225,
+                                225,
+                              ).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Text(
+                              'AI\nCoaching',
+                              style: GoogleFonts.montserrat(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -140,10 +140,10 @@ abstract final class AppTheme {
 }
 
 const FlexSchemeColor _cyanScheme = FlexSchemeColor(
-  primary: Color(0xFF00B5D8), // 🌊 Cyan Blue modern
+  primary: Color(0xFF00B5D8), 
   primaryContainer: Color(0xFF0097A7),
   secondary: Color(0xFF26C6DA),
-  secondaryContainer: Color(0xFF00838F),
+  secondaryContainer: Color(0xFFB3A0FF),
   tertiary: Color(0xFF2979FF),
   tertiaryContainer: Color(0xFF1565C0),
 );

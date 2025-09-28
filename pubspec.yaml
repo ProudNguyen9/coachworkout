@@ -83,6 +83,7 @@ flutter:
   assets:
     - assets/
     - assets/icons/
+    - assets/libraryworkout/
    
 
   # An image asset can refer to one or more resolution-specific "variants", see

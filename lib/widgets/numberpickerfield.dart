@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class NumberPickerField extends StatefulWidget {
@@ -67,7 +68,7 @@ class _NumberPickerFieldState extends State<NumberPickerField> {
             children: [
               Text(
                 widget.label,
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -78,7 +79,7 @@ class _NumberPickerFieldState extends State<NumberPickerField> {
                 widget.allowDecimal
                     ? "$integerPart.$decimalPart ${widget.unit}"
                     : "$integerPart ${widget.unit}",
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -93,7 +94,7 @@ class _NumberPickerFieldState extends State<NumberPickerField> {
               NumberPicker(
                 itemHeight: 29,
                 textStyle: TextStyle(fontSize: 16, color: Colors.white70),
-                selectedTextStyle: TextStyle(
+                selectedTextStyle: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -111,7 +112,7 @@ class _NumberPickerFieldState extends State<NumberPickerField> {
                 NumberPicker(
                   itemHeight: 28,
                   textStyle: TextStyle(fontSize: 16, color: Colors.white70),
-                  selectedTextStyle: TextStyle(
+                  selectedTextStyle: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

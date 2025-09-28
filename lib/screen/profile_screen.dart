@@ -131,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "153",
+                          "159",
                           style: TextStyle(
                             fontSize: 24,
                             fontFamily: 'PlusJakartaSans',

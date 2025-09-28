@@ -2,31 +2,13 @@ import 'package:flutter/material.dart';
 
 class MuscleScrollRow extends StatelessWidget {
   final List<Map<String, String>> muscles = [
-    {
-      'name': 'Chest',
-      'image':
-          'https://images.pexels.com/photos/3838381/pexels-photo-3838381.jpeg', // ngực
-    },
-    {
-      'name': 'Back',
-      'image':
-          'https://images.pexels.com/photos/1552106/pexels-photo-1552106.jpeg', // lưng
-    },
-    {
-      'name': 'Biceps',
-      'image':
-          'https://images.pexels.com/photos/414029/pexels-photo-414029.jpeg', // tay trước
-    },
-    {
-      'name': 'Abs',
-      'image':
-          'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg', // bụng
-    },
-    {
-      'name': 'Legs',
-      'image':
-          'https://images.pexels.com/photos/2261485/pexels-photo-2261485.jpeg', // chân
-    },
+    {'name': 'Chest', 'image': 'assets/libraryworkout/chest.png'},
+    {'name': 'Back', 'image': 'assets/libraryworkout/back.png'},
+    {'name': 'Shoulders', 'image': 'assets/libraryworkout/shoulders.png'},
+    {'name': 'Biceps', 'image': 'assets/libraryworkout/biceps.png'},
+    {'name': 'Triceps', 'image': 'assets/libraryworkout/triceps.png'},
+    {'name': 'Legs', 'image': 'assets/libraryworkout/legs.png'},
+    {'name': 'Core', 'image': 'assets/libraryworkout/core.png'},
   ];
 
   MuscleScrollRow({super.key});
@@ -62,12 +44,19 @@ class MuscleScrollRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: Stack(
                 children: [
-                  Image.network(
-                    muscle['image']!,
-                    height: 100,
-                    width: 120,
-                    fit: BoxFit.cover,
-                  ),
+                  (muscle['image']!.startsWith('http'))
+                      ? Image.network(
+                          muscle['image']!,
+                          height: 100,
+                          width: 120,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          muscle['image']!,
+                          height: 100,
+                          width: 120,
+                          fit: BoxFit.cover,
+                        ),
                   Container(
                     height: 100,
                     width: 120,
@@ -121,10 +110,10 @@ class MuscleScrollRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF6A11CB), 
-                    Color.fromARGB(255, 37, 248, 252), 
-                    Color(0xFFFF6FD8), 
-                    Color(0xFFFF8C00), 
+                    Color(0xFF6A11CB),
+                    Color.fromARGB(255, 37, 248, 252),
+                    Color(0xFFFF6FD8),
+                    Color(0xFFFF8C00),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

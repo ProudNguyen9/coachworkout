@@ -94,7 +94,9 @@ class AtHomeScreen extends StatelessWidget {
             Container(
               width: 393,
               height: 347,
-              decoration: BoxDecoration(color: const Color(0xFFB3A0FF)),
+              decoration: BoxDecoration(
+                color: context.colorScheme.secondaryContainer,
+              ),
               child: Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24),

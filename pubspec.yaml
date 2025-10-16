@@ -53,6 +53,8 @@ dependencies:
   line_icons: ^2.0.3
   animated_floating_buttons: ^0.0.2
   font_awesome_flutter: ^10.9.1
+  animate_do: ^4.2.0
+  
  
  
 

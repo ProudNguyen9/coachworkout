@@ -7,7 +7,7 @@ class RoutesNotifier with ChangeNotifier {
   final GlobalKey<NavigatorState> navigationKey = GlobalKey<NavigatorState>();
 
   late final GoRouter router = GoRouter(
-    initialLocation: RouteLocation.wourkoutlibrary,
+    initialLocation: RouteLocation.detail,
     navigatorKey: navigationKey,
     routes: getAppRoutes(navigationKey),
   );

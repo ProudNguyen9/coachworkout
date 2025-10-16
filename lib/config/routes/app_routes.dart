@@ -46,6 +46,10 @@ List<GoRoute> getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
       parentNavigatorKey: navigatorKey,
       builder: ProfileScreen.builder,
     ),
-  
+    GoRoute(
+      path: RouteLocation.detail,
+      parentNavigatorKey: navigatorKey,
+      builder: DetailWorkout.builder,
+    ),
   ];
 }

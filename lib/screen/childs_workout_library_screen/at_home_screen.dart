@@ -17,6 +17,26 @@ class AtHomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Gap(19),
+            Center(
+              child: SizedBox(
+                height: 52,
+                width: context.deviceSize.width - 30,
+                //search fiel
+                child: TextField(
+                  onChanged: null,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    hint: Text('Fill your context ....'),
+                    fillColor: context.colorScheme.surface,
+                    focusColor: context.colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             const Gap(10),
             TextTile(title: 'Target Area'),
             Padding(

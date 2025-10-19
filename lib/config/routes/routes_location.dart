@@ -1,15 +1,15 @@
-import 'package:flutter/foundation.dart' show immutable;
-
-@immutable
 class RouteLocation {
-  const RouteLocation._();
- static String get login => '/login';
-  static String get home => '/home';
-  static String get resetpass => '/resetpass';
-  static String get register => '/register';
-  static String get onboarding => '/onboarding';
-  static String get profilesetup => '/profilesetup';
-  static String get wourkoutlibrary => '/wourkoutlibrary';
-  static String get profile => '/profile';
-  static String get detail => '/detail';
+  static const String home = '/home';
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String resetpass = '/resetpass';
+  static const String onboarding = '/onboarding';
+  static const String profilesetup = '/profilesetup';
+  static const String wourkoutlibrary = '/wourkoutlibrary';
+  static const String profile = '/profile';
+  static const String detail = '/detail';
+  static const String workoutexercises = '/workoutexercises';
+  static const String animatedcountdown = '/animatedcountdown';
+  static const String WorkoutSession = '/WorkoutSession';
+  static const String loginCallback = '/login-callback'; // ✅ thêm dòng này
 }

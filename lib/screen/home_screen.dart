@@ -12,7 +12,7 @@ import 'screens.dart';
 final List<Widget> pages = const [
   OverviewScreen(),
   YoursCoach(),
-  Center(child: Text('Nutrition Plan Content')),
+  NutritionPlanScreen(),
   Center(child: Text('Workout Schedule Content')),
 ];
 

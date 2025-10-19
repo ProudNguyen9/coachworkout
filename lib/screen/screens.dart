@@ -14,3 +14,6 @@ export 'childs_workout_library_screen/at_gym_screen.dart';
 export 'childs_workout_library_screen/meal_plan_screen.dart';
 export 'profile_screen.dart';
 export 'detail_workout.dart';
+export 'wourkout_screen.dart';
+export 'animated_countdown.dart';
+export 'workout_session_screen.dart';

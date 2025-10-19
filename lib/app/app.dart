@@ -12,7 +12,7 @@ class CoachWorkout extends StatelessWidget {
     final router = context.watch<RoutesNotifier>().router;
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Workout App',
+      title: 'Coach Workout',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.light,

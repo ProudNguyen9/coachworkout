@@ -83,13 +83,15 @@ class DetailWorkout extends StatelessWidget {
                     FadeInUp(
                       duration: const Duration(milliseconds: 700),
                       delay: const Duration(milliseconds: 100),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          _InfoItem(title: 'Beginner', subtitle: 'Level'),
-                          _InfoItem(title: '14 mins', subtitle: 'Time'),
-                          _InfoItem(title: '204 kcal', subtitle: 'Calories'),
-                        ],
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const [
+                            _InfoItem(title: 'Beginner', subtitle: 'Level'),
+                            _InfoItem(title: '14 mins', subtitle: 'Time'),
+                            _InfoItem(title: '204 kcal', subtitle: 'Calories'),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -100,7 +102,7 @@ class DetailWorkout extends StatelessWidget {
                       duration: const Duration(milliseconds: 800),
                       delay: const Duration(milliseconds: 200),
                       child: const Text(
-                        'Belly fat burning HIIT alternates intense exercises with less intense recovery periods.\n\n',
+                        'Belly fat burning HIIT alternates intense exercises with less intense recovery periods.se exercises with less intense recovery periods.',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w400,
@@ -178,7 +180,7 @@ class DetailWorkout extends StatelessWidget {
                   alignment: Alignment.center,
                   transform: Matrix4.identity()..rotateZ(0.10),
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
+                    padding: const EdgeInsets.only(top: 4.0, left: 6),
                     child: Image.asset(
                       'assets/bannerycdi.png',
                       fit: BoxFit.cover,

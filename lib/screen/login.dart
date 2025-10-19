@@ -1,12 +1,12 @@
 import 'package:coach_workout/config/config.dart';
 import 'package:coach_workout/config/theme/color_scheme_extension.dart';
 import 'package:coach_workout/widgets/widgets.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/provider.dart';
 import '../utils/utils.dart';
@@ -17,7 +17,6 @@ class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
   final _formKey = GlobalKey<FormState>();
 
-  // Controller chỉ tồn tại trong màn hình này
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   @override
@@ -131,29 +130,13 @@ class LoginScreen extends StatelessWidget {
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    try {
-                                      final user = await AuthRepository.instance
-                                          .signInWithEmail(
-                                            emailController.text.trim(),
-                                            passwordController.text.trim(),
-                                          );
-
-                                      if (user != null) {
-                                        context.go(RouteLocation.onboarding);
-                                      }
-                                    } on FirebaseAuthException catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text("Lỗi  ${e.message}"),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  }
+                                  await Supabase.instance.client.auth
+                                      .signInWithOAuth(
+                                        OAuthProvider
+                                            .google, // 👈 dùng OAuthProvider thay vì Provider
+                                        redirectTo:
+                                            'coachworkout://login-callback',
+                                      );
                                 },
 
                                 style: ElevatedButton.styleFrom(
@@ -207,60 +190,84 @@ class LoginScreen extends StatelessWidget {
                             children: [
                               IconButtonSvg(
                                 onPressed: () async {
-                                  final googleSignIn = GoogleSignIn.instance;
-
-                                  await googleSignIn.initialize();
-
-                                  final account = await googleSignIn
-                                      .authenticate();
-
-                                  final auth = account.authentication;
-                                  final credential =
-                                      GoogleAuthProvider.credential(
-                                        idToken: auth.idToken,
-                                      );
-                                  await FirebaseAuth.instance
-                                      .signInWithCredential(credential);
+                                  try {
+                                    await Supabase.instance.client.auth
+                                        .signInWithOAuth(
+                                          OAuthProvider.google,
+                                          redirectTo:
+                                              'coachworkout://login-callback',
+                                          authScreenLaunchMode:
+                                              LaunchMode.externalApplication,
+                                        );
+                                  } catch (e) {
+                                    debugPrint('Lỗi đăng nhập Google: $e');
+                                  }
                                 },
                                 path: 'assets/google_icon.svg',
                               ),
+
                               Gap(10),
                               IconButtonSvg(
                                 onPressed: () async {
-                                  final user = await AuthRepository.instance
-                                      .signInWithFacebook();
-                                  if (user != null) {
-                                    print(
-                                      "Đăng nhập thành công: ${user.email}",
-                                    );
-                                  } else {
-                                    print("Đăng nhập thất bại");
-                                  }
+                                  // try {
+                                  //   await AuthRepository.instance
+                                  //       .signInWithFacebook();
+                                  //   final user =
+                                  //       AuthRepository.instance.currentUser;
+
+                                  //   if (user != null) {
+                                  //     print(
+                                  //       "Facebook login successful: ${user.email}",
+                                  //     );
+                                  //   } else {
+                                  //     print(
+                                  //       "Facebook login failed or canceled.",
+                                  //     );
+                                  //   }
+                                  // } catch (e) {
+                                  //   print("Facebook login error: $e");
+                                  // }
                                 },
+
                                 path: 'assets/facebook_icon.svg',
                               ),
                               Gap(10),
                               IconButtonSvg(
                                 onPressed: () async {
-                                  final user = await AuthRepository.instance
-                                      .signInWithGithubFirebase();
-                                  if (user != null) {
-                                    // Đăng nhập thành công
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Xin chào ${user.displayName}!',
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    // User hủy login hoặc lỗi
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Đăng nhập thất bại'),
-                                      ),
-                                    );
-                                  }
+                                  // try {
+                                  //   await AuthRepository.instance
+                                  //       .signInWithGithub();
+                                  //   final user =
+                                  //       AuthRepository.instance.currentUser;
+
+                                  //   if (user != null) {
+                                  //     ScaffoldMessenger.of(
+                                  //       context,
+                                  //     ).showSnackBar(
+                                  //       SnackBar(
+                                  //         content: Text(
+                                  //           'Welcome ${user.email ?? 'User'}!',
+                                  //         ),
+                                  //       ),
+                                  //     );
+                                  //   } else {
+                                  //     ScaffoldMessenger.of(
+                                  //       context,
+                                  //     ).showSnackBar(
+                                  //       const SnackBar(
+                                  //         content: Text(
+                                  //           'GitHub login failed or canceled.',
+                                  //         ),
+                                  //       ),
+                                  //     );
+                                  //   }
+                                  // } catch (e) {
+                                  //   ScaffoldMessenger.of(context).showSnackBar(
+                                  //     SnackBar(
+                                  //       content: Text('GitHub login error: $e'),
+                                  //     ),
+                                  //   );
+                                  // }
                                 },
                                 path: 'assets/github_icon.svg',
                                 color: context.colorScheme.colorlogogithub,

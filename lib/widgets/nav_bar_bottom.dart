@@ -6,7 +6,6 @@ class NavBarBottom extends StatefulWidget {
   const NavBarBottom({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _NavBarBottomState createState() => _NavBarBottomState();
 }
 
@@ -26,16 +25,16 @@ class _NavBarBottomState extends State<NavBarBottom> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
           child: GNav(
-            rippleColor: Color.fromARGB(139, 0, 180, 216),
+            rippleColor: const Color.fromARGB(139, 0, 180, 216),
             hoverColor: Colors.grey[100]!,
             gap: 8,
             activeColor: Colors.black,
             iconSize: 24,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            duration: Duration(milliseconds: 400),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            duration: const Duration(milliseconds: 400),
             tabBackgroundColor: context.colorScheme.primary.withOpacity(0.1),
             color: Colors.black,
-            tabs: [
+            tabs: const [
               GButton(icon: Icons.home, text: 'Home'),
               GButton(icon: Icons.message, text: 'Message'),
               GButton(icon: Icons.public, text: 'Community'),
@@ -43,10 +42,22 @@ class _NavBarBottomState extends State<NavBarBottom> {
               GButton(icon: Icons.person, text: 'Profile'),
             ],
             selectedIndex: _selectedIndex,
-            onTabChange: (index) {
+            onTabChange: (index) async {
               setState(() {
                 _selectedIndex = index;
               });
+
+              // 🔹 Khi bấm vào tab "Message", mở chat
+              if (index == 1) {
+                // Nếu bạn có GoRouter:
+                // context.push('/chat');
+
+                // // Nếu không có GoRouter, dùng Navigator:
+                // await Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (_) => ChatInitializer().build()),
+                // );
+              }
             },
           ),
         ),

@@ -1,27 +1,40 @@
-import 'package:coach_workout/app/app.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app/app.dart'; // file CoachWorkout.dart
 import 'config/config.dart';
 import 'providers/provider.dart';
+import 'config/routes/routes_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  // ✅ Khởi tạo Supabase
+  await Supabase.initialize(
+    url: 'https://zsqeewnrycesouhunxxk.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWVld25yeWNlc291aHVueHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3Mjc2NDMsImV4cCI6MjA3NjMwMzY0M30.NT9XbVC0astMhOuqxZtqv03Nh4t3c1eV2uo6b0AY5Wg',
+  );
+
+  
+  // ✅ Ẩn thanh trạng thái
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => PasswordProvider()),
-        ChangeNotifierProvider(create: (_) => TabProvider()),
-        ChangeNotifierProvider(create: (_) => RoutesNotifier()),
-      ],
-      child: CoachWorkout(),
-    ),
+
+  // ✅ MultiProvider
+  final container = MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => PasswordProvider()),
+      ChangeNotifierProvider(create: (_) => TabProvider()),
+      ChangeNotifierProvider(create: (_) => RoutesNotifier()),
+    ],
+    child: const CoachWorkout(),
   );
+
+  runApp(container);
 }

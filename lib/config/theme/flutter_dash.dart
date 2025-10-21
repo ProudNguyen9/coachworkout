@@ -95,8 +95,10 @@ abstract final class AppTheme {
     fontFamily: GoogleFonts.montserrat().fontFamily,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     subThemesData: const FlexSubThemesData(
+      // ignore: deprecated_member_use
       useTextTheme: true,
       blendOnColors: true,
+      // ignore: deprecated_member_use
       blendTextTheme: true,
       fabUseShape: true,
       bottomNavigationBarElevation: 0,

@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../screen/screens.dart';
 import 'routes_location.dart';
 
-/// ✅ Tạo GoRouter hoàn chỉnh (thay vì chỉ trả về List<GoRoute>)
 GoRouter getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
   return GoRouter(
     navigatorKey: navigatorKey,

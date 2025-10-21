@@ -1,58 +1,61 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.coach_workout">
 
+    <!-- Audio recording -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Microphone/audio settings -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Camera capture -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Optional: to save recordings in public storage (legacy) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                     android:maxSdkVersion="28" />
+
+    <!-- Gallery access -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- On Android 13+ you may also need these for image/video access -->
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
     <application
-        android:label="coach_workout"
         android:name="${applicationName}"
+        android:label="coach_workout"
         android:icon="@mipmap/ic_launcher">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
 
-            <!-- 🔹 Theme hiển thị khi app khởi động -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
-            <!-- 🔹 Màn hình khởi động -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- 🔹 Supabase OAuth / Google callback deep link -->
+            <!-- 🔗 Deep link Supabase -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
-                <!-- ✅ Callback URL phải trùng với redirectTo trong code & Supabase Dashboard -->
-                <data
-                    android:scheme="coachworkout"
-                    android:host="login-callback" />
+                <data android:scheme="coachworkout" android:host="login-callback" />
             </intent-filter>
-
         </activity>
 
-        <!-- Flutter meta -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-
-    <!-- 🟦 Cho phép Flutter query text actions -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT" />
-            <data android:mimeType="text/plain" />
-        </intent>
-    </queries>
 
 </manifest>

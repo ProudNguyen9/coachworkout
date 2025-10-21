@@ -2,6 +2,8 @@ import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
+import '../screen/screens.dart';
+
 class NavBarBottom extends StatefulWidget {
   const NavBarBottom({super.key});
 
@@ -34,12 +36,23 @@ class _NavBarBottomState extends State<NavBarBottom> {
             duration: const Duration(milliseconds: 400),
             tabBackgroundColor: context.colorScheme.primary.withOpacity(0.1),
             color: Colors.black,
-            tabs: const [
-              GButton(icon: Icons.home, text: 'Home'),
-              GButton(icon: Icons.message, text: 'Message'),
-              GButton(icon: Icons.public, text: 'Community'),
-              GButton(icon: Icons.fitness_center, text: 'Workout'),
-              GButton(icon: Icons.person, text: 'Profile'),
+            tabs: [
+              const GButton(icon: Icons.home, text: 'Home'),
+              GButton(
+                icon: Icons.message,
+                text: 'Message',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ConversationListScreen(),
+                    ),
+                  );
+                },
+              ),
+              const GButton(icon: Icons.public, text: 'Community'),
+              const GButton(icon: Icons.fitness_center, text: 'Workout'),
+              const GButton(icon: Icons.person, text: 'Profile'),
             ],
             selectedIndex: _selectedIndex,
             onTabChange: (index) async {

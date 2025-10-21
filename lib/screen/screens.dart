@@ -17,3 +17,5 @@ export 'detail_workout.dart';
 export 'wourkout_screen.dart';
 export 'animated_countdown.dart';
 export 'workout_session_screen.dart';
+export 'conversation_list_screen.dart';
+export 'chat_screen.dart';

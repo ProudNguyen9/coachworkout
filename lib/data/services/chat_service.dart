@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:mime/mime.dart';
-import 'package:path/path.dart' as path;
-import 'package:chatview/chatview.dart';
+import 'package:coach_workout/data/models/model_for_chatscreen.dart';
 import 'package:coach_workout/data/models/conversation_model.dart';
-import 'package:coach_workout/data/models/user_model.dart';
+import 'package:mime/mime.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path/path.dart' as path;
 
 class ChatService {
   final SupabaseClient _client = Supabase.instance.client;
@@ -29,7 +27,9 @@ class ChatService {
     }
   }
 
-  Future<List<Message>> getMessagesBetweenUsers(String conversationId) async {
+  Future<List<MessageModel_chatscreen>> getMessagesBetweenUsers(
+    String conversationId,
+  ) async {
     try {
       final response = await _client.rpc(
         'get_messages_between_users',
@@ -42,7 +42,7 @@ class ChatService {
           ? jsonDecode(response)
           : response as List;
 
-      final List<Message> messages = [];
+      final List<MessageModel_chatscreen> messages = [];
 
       for (final json in data) {
         final messageId = json['message_id'] ?? '';
@@ -53,35 +53,47 @@ class ChatService {
         final replyToId = json['reply_to_id'];
         final replyContent = json['reply_content'];
 
-        // ✅ Tự nhận diện loại tin nhắn dựa vào URL / extension
+        // ✅ Nhận diện loại tin nhắn
         final messageType = _detectMessageType(content);
 
         if (replyToId != null && replyContent != null) {
           // 🟢 Tin nhắn có reply
           messages.add(
-            Message(
+            MessageModel_chatscreen(
               id: messageId,
-              message: content,
-              createdAt: createdAt,
               sentBy: senderId,
-              messageType: messageType,
-              replyMessage: ReplyMessage(
-                messageId: replyToId,
-                message: replyContent,
-                replyBy: senderId,
-                replyTo: replyToId,
+              text: (messageType == MessageType.text) ? content : null,
+              mediaPath:
+                  (messageType == MessageType.image ||
+                      messageType == MessageType.video)
+                  ? content
+                  : null,
+              mediaType: messageType,
+              createdAt: createdAt,
+              replyTo: MessageModel_chatscreen(
+                id: replyToId,
+                sentBy: senderId,
+                text: replyContent,
+                createdAt: createdAt,
+                mediaPath: null,
+                mediaType: MessageType.text,
               ),
             ),
           );
         } else {
           // 🔵 Tin nhắn thường
           messages.add(
-            Message(
+            MessageModel_chatscreen(
               id: messageId,
-              message: content,
-              createdAt: createdAt,
               sentBy: senderId,
-              messageType: messageType,
+              text: (messageType == MessageType.text) ? content : null,
+              mediaPath:
+                  (messageType == MessageType.image ||
+                      messageType == MessageType.video)
+                  ? content
+                  : null,
+              mediaType: messageType,
+              createdAt: createdAt,
             ),
           );
         }
@@ -98,60 +110,49 @@ class ChatService {
     }
   }
 
-  /// 🔍 Hàm nhận diện loại message
+  /// 🔍 Hàm nhận diện loại message (image / video / text)
   MessageType _detectMessageType(String content) {
-    if (content.startsWith('http')) {
+    try {
       final lower = content.toLowerCase();
 
-      if (lower.endsWith('.jpg') ||
-          lower.endsWith('.jpeg') ||
-          lower.endsWith('.png') ||
-          lower.endsWith('.gif') ||
-          lower.contains('/images/')) {
+      // 1) Nếu server trả về mimeType cho URL -> dùng nó
+      final mimeType = lookupMimeType(content) ?? '';
+
+      if (mimeType.isNotEmpty) {
+        if (mimeType.startsWith('image/')) return MessageType.image;
+        if (mimeType.startsWith('video/')) return MessageType.video;
+        // nếu là audio thì fallback về text (enum hiện tại không có audio)
+        if (mimeType.startsWith('audio/')) return MessageType.text;
+      }
+
+      // 2) Nếu không có mime, kiểm tra extension như fallback
+      final ext = path.extension(content).toLowerCase();
+      const imageExt = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+      const videoExt = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.3gp'];
+
+      if (imageExt.contains(ext) ||
+          lower.contains('/images/') ||
+          lower.contains('/image/')) {
         return MessageType.image;
       }
 
-      if (lower.endsWith('.mp3') ||
-          lower.endsWith('.m4a') ||
-          lower.endsWith('.wav') ||
-          lower.contains('/voice/')) {
-        return MessageType.voice;
+      if (videoExt.contains(ext) ||
+          lower.contains('/videos/') ||
+          lower.contains('/video/')) {
+        return MessageType.video;
       }
+    } catch (e) {
+      // nếu có lỗi, trả về text làm mặc định
+      print('⚠️ _detectMessageType error: $e');
     }
 
     return MessageType.text;
   }
 
-  /// ✉️ Gửi tin nhắn mới
-  Future<void> sendMessage({
-    required String conversationId,
-    required String content,
-    String type = 'text',
-    String? replyToId,
-  }) async {
-    try {
-      final user = _client.auth.currentUser;
-      if (user == null) throw Exception('Chưa đăng nhập');
-
-      await _client.from('messages').insert({
-        'conversation_id': conversationId,
-        'sender_id': user.id,
-        'content': content,
-        'reply_to_id': replyToId,
-        'type': type,
-        'created_at': DateTime.now().toIso8601String(),
-      });
-    } catch (error, stack) {
-      print('❌ Error sendMessage: $error');
-      print(stack);
-      rethrow;
-    }
-  }
-
   /// ✅ ID người dùng hiện tại
   String? get currentUserId => _client.auth.currentUser?.id;
 
-  /// 👥 Lấy thông tin cả 2 user trong hội thoại (current + other)
+  /// 👥 Lấy thông tin cả 2 user trong hội thoại (UI model)
   Future<ChatUserPair?> getChatUsers(String conversationId) async {
     try {
       final currentUser = _client.auth.currentUser;
@@ -171,7 +172,6 @@ class ChatService {
 
       final user1Id = conversationData['user1_id'] as String?;
       final user2Id = conversationData['user2_id'] as String?;
-
       final otherUserId = user1Id == currentUser.id ? user2Id : user1Id;
 
       if (otherUserId == null) {
@@ -198,27 +198,43 @@ class ChatService {
         return null;
       }
 
-      final currentUserModel = UserModel.fromJson(currentUserResponse);
-      final otherUserModel = UserModel.fromJson(otherUserResponse);
+      // ✅ Avatar mặc định
+      const defaultAvatar = "https://i.pravatar.cc/150?img=9";
 
-      // 🔹 Chuyển sang ChatUserPair cho ChatView
+      // ✅ Xử lý user hiện tại
+      final currentUserModel = UserModel_chatscreen(
+        id: currentUserResponse['id'] ?? '',
+        name:
+            (currentUserResponse['name'] != null &&
+                currentUserResponse['name'].toString().trim().isNotEmpty)
+            ? currentUserResponse['name']
+            : currentUserResponse['email'] ?? 'Bạn',
+        avatarUrl:
+            (currentUserResponse['avatar_url'] != null &&
+                currentUserResponse['avatar_url'].toString().isNotEmpty)
+            ? currentUserResponse['avatar_url']
+            : defaultAvatar,
+      );
+
+      // ✅ Xử lý user còn lại
+      final otherUserModel = UserModel_chatscreen(
+        id: otherUserResponse['id'] ?? '',
+        name:
+            (otherUserResponse['name'] != null &&
+                otherUserResponse['name'].toString().trim().isNotEmpty)
+            ? otherUserResponse['name']
+            : otherUserResponse['email'] ?? 'Người kia',
+        avatarUrl:
+            (otherUserResponse['avatar_url'] != null &&
+                otherUserResponse['avatar_url'].toString().isNotEmpty)
+            ? otherUserResponse['avatar_url']
+            : defaultAvatar,
+      );
+
+      // ✅ Gói thành cặp user cho UI
       final chatUsers = ChatUserPair(
-        currentUser: ChatUser(
-          id: currentUserModel.id,
-          name: 'You',
-          profilePhoto: currentUserModel.avatarUrl?.isNotEmpty == true
-              ? currentUserModel.avatarUrl!
-              : "https://github.com/SimformSolutionsPvtLtd/chatview/blob/main/example/assets/images/simform.png?raw=true",
-        ),
-        otherUser: ChatUser(
-          id: otherUserModel.id,
-          name: (otherUserModel.name?.isNotEmpty ?? false)
-              ? otherUserModel.name!
-              : otherUserModel.email,
-          profilePhoto: otherUserModel.avatarUrl?.isNotEmpty == true
-              ? otherUserModel.avatarUrl!
-              : "https://github.com/SimformSolutionsPvtLtd/chatview/blob/main/example/assets/images/simform.png?raw=true",
-        ),
+        currentUser: currentUserModel,
+        otherUser: otherUserModel,
       );
 
       return chatUsers;
@@ -228,64 +244,11 @@ class ChatService {
       rethrow;
     }
   }
-
-  /// 📤 Upload media (image / voice) lên Supabase Storage
-  Future<String> uploadMedia(String filePath, String bucket) async {
-    try {
-      final file = File(filePath);
-      if (!file.existsSync()) {
-        throw Exception('❌ File không tồn tại: $filePath');
-      }
-
-      // 🔹 Lấy tên file và phần mở rộng
-      final fileName = path.basename(file.path);
-      final extension = path.extension(file.path).toLowerCase();
-
-      // 🔹 Xác định MIME type chính xác
-      String mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
-
-      // ✅ Ép kiểu MIME cho file âm thanh (voice)
-      if (extension == '.m4a') mimeType = 'audio/mp4';
-      if (extension == '.aac') mimeType = 'audio/aac';
-      if (extension == '.mp3') mimeType = 'audio/mpeg';
-      if (extension == '.wav') mimeType = 'audio/wav';
-
-      // ✅ MIME cho ảnh (nếu cần đảm bảo)
-      if (extension == '.jpg' || extension == '.jpeg') mimeType = 'image/jpeg';
-      if (extension == '.png') mimeType = 'image/png';
-      if (extension == '.gif') mimeType = 'image/gif';
-
-      // 🔹 Tạo tên file duy nhất trong bucket
-      final storagePath = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
-
-      // 🧩 Upload file lên bucket tương ứng
-      final res = await _client.storage
-          .from(bucket)
-          .upload(
-            storagePath,
-            file,
-            fileOptions: FileOptions(contentType: mimeType, upsert: false),
-          );
-
-      if (res.isEmpty) {
-        throw Exception('⚠️ Upload thất bại');
-      }
-
-      // ✅ Lấy public URL của file
-      final publicUrl = _client.storage.from(bucket).getPublicUrl(storagePath);
-
-      print('✅ Upload thành công: $publicUrl ($mimeType)');
-      return publicUrl;
-    } catch (e, st) {
-      print('❌ Lỗi uploadMedia: $e\n$st');
-      rethrow;
-    }
-  }
 }
 
 class ChatUserPair {
-  final ChatUser currentUser;
-  final ChatUser otherUser;
+  final UserModel_chatscreen currentUser;
+  final UserModel_chatscreen otherUser;
 
   ChatUserPair({required this.currentUser, required this.otherUser});
 }

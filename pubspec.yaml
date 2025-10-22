@@ -59,6 +59,12 @@ dependencies:
   async: ^2.13.0
   chatview: ^2.5.0
   mime: ^2.0.0
+  file_picker: ^10.3.3
+  image_picker: ^1.2.0
+  video_player: ^2.10.0
+  audioplayers: ^6.5.1
+  path_provider: ^2.1.5
+  http: ^1.5.0
 flutter pub add chatview  permission_handler: ^12.0.1
  
  

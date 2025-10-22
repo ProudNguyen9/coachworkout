@@ -152,7 +152,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        ChatScreen(conversationId: c.id),
+                                        CustomChatScreen(conversationId: c.id),
                                   ),
                                 );
                               },

@@ -1,49 +1,41 @@
 class MessageModel {
-  final String messageId;
+  final String id;
   final String conversationId;
   final String senderId;
-  final String? senderName;
-  final String? senderAvatar;
-  final String content;
+  final String? content;
+  final DateTime? createdAt;
   final String? replyToId;
-  final String? replyContent;
-  final DateTime createdAt;
+  final String? type;
 
-  MessageModel({
-    required this.messageId,
+  const MessageModel({
+    required this.id,
     required this.conversationId,
     required this.senderId,
-    this.senderName,
-    this.senderAvatar,
-    required this.content,
+    this.content,
+    this.createdAt,
     this.replyToId,
-    this.replyContent,
-    required this.createdAt,
+    this.type,
   });
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) {
-    return MessageModel(
-      messageId: json['message_id'] ?? '',
-      conversationId: json['conversation_id'] ?? '',
-      senderId: json['sender_id'] ?? '',
-      senderName: json['sender_name'],
-      senderAvatar: json['sender_avatar'],
-      content: json['content'] ?? '',
-      replyToId: json['reply_to_id'],
-      replyContent: json['reply_content'],
-      createdAt: DateTime.parse(json['created_at']),
-    );
-  }
+  factory MessageModel.fromJson(Map<String, dynamic> json) => MessageModel(
+        id: json['id'],
+        conversationId: json['conversation_id'],
+        senderId: json['sender_id'],
+        content: json['content'],
+        createdAt: json['created_at'] != null
+            ? DateTime.parse(json['created_at'])
+            : null,
+        replyToId: json['reply_to_id'],
+        type: json['type'],
+      );
 
   Map<String, dynamic> toJson() => {
-        'message_id': messageId,
+        'id': id,
         'conversation_id': conversationId,
         'sender_id': senderId,
-        'sender_name': senderName,
-        'sender_avatar': senderAvatar,
         'content': content,
+        'created_at': createdAt?.toIso8601String(),
         'reply_to_id': replyToId,
-        'reply_content': replyContent,
-        'created_at': createdAt.toIso8601String(),
+        'type': type,
       };
 }

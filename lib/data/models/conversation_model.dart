@@ -30,12 +30,8 @@ class ConversationModel {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,
-      user1: json['user1'] != null
-          ? UserModel.fromJson(json['user1'])
-          : null,
-      user2: json['user2'] != null
-          ? UserModel.fromJson(json['user2'])
-          : null,
+      user1: json['user1'] != null ? UserModel.fromJson(json['user1']) : null,
+      user2: json['user2'] != null ? UserModel.fromJson(json['user2']) : null,
       lastMessage: json['last_message'] != null
           ? MessageModel.fromJson(json['last_message'])
           : null,
@@ -50,5 +46,15 @@ class ConversationModel {
       'user2': user2?.toJson(),
       'last_message': lastMessage?.toJson(),
     };
+  }
+
+  ConversationModel copyWithLastMessage(Map<String, dynamic> msg) {
+    return ConversationModel(
+      id: id,
+      user1: user1,
+      user2: user2,
+      lastMessage: MessageModel.fromJson(msg),
+      createdAt: createdAt,
+    );
   }
 }

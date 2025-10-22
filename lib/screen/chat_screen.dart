@@ -5,15 +5,17 @@ import 'package:coach_workout/data/services/chat_service.dart';
 import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 
-//////////////////////////////////////////////////////////
 // 💬 MÀN HÌNH CHAT
-//////////////////////////////////////////////////////////
+
 class CustomChatScreen extends StatefulWidget {
   final String conversationId;
   const CustomChatScreen({super.key, required this.conversationId});
@@ -25,21 +27,51 @@ class CustomChatScreen extends StatefulWidget {
 class _CustomChatScreenState extends State<CustomChatScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
-
+  late RealtimeChannel _messageChannel;
   UserModel_chatscreen? me;
   UserModel_chatscreen? other;
   final ChatService _chatService = ChatService();
   List<MessageModel_chatscreen> _messages = [];
   bool _loadingMessages = true;
   bool _loadingUsers = true;
+  final uuid = Uuid();
+  final Color primaryColor = const Color(0xFF00B5D8);
+  File? _pendingMedia;
+  // 🆕 reply logic
+  MessageModel_chatscreen? _replyingTo;
 
   @override
   void initState() {
     super.initState();
     _initChatUsers();
     _loadMessages();
+    _messageChannel = _chatService.listenForMessages(
+      conversationId: widget.conversationId,
+      onNewMessage: (msg) {
+        if (!mounted) return;
+
+        // 🛑 Tránh trùng tin nhắn đã có (ví dụ text đã add local)
+        final exists = _messages.any((m) => m.id == msg.id);
+        if (exists) return;
+
+        setState(() {
+          _messages.add(msg);
+        });
+        _scrollToBottom();
+      },
+    );
+  }
+  // ✅ Dọn dẹp channel khi rời màn hình
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _scrollController.dispose();
+    _messageChannel.unsubscribe();
+    super.dispose();
   }
 
+  // init user
   Future<void> _initChatUsers() async {
     try {
       final chatUsers = await _chatService.getChatUsers(widget.conversationId);
@@ -70,6 +102,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     }
   }
 
+  // load ban dau
   Future<void> _loadMessages() async {
     try {
       setState(() => _loadingMessages = true);
@@ -85,11 +118,11 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
         _loadingMessages = false;
       });
 
-      // ✅ Sau khi load xong cuộn xuống cuối
+      // 👇 Cuộn sau khi frame vẽ xong (khi list đã render đủ chiều cao)
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollController.hasClients) {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-        }
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _scrollToBottom(instant: true);
+        });
       });
     } catch (e) {
       print('❌ Error load messages: $e');
@@ -97,60 +130,122 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     }
   }
 
-  final Color primaryColor = const Color(0xFF00B5D8);
-
-  File? _pendingMedia;
-  MessageType? _pendingType;
-
-  // 🆕 reply logic
-  MessageModel_chatscreen? _replyingTo;
-
-  //////////////////////////////////////////////////////////
-  // GỬI TIN NHẮN
-  //////////////////////////////////////////////////////////
-  void _sendMessage() {
+  // 📨 GỬI TIN NHẮN
+  void _sendMessage() async {
     final text = _textController.text.trim();
-    if (text.isEmpty && _pendingMedia == null) return;
 
+    // 🚫 Nếu cả text và media đều trống
+    if (text.isEmpty && _pendingMedia == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng nhập tin nhắn hoặc chọn media'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // 🧩 Tạo tin nhắn tạm (local)
     final msg = MessageModel_chatscreen(
-      id: DateTime.now().toIso8601String(),
+      id: uuid.v4(),
       sentBy: me!.id,
       text: text.isNotEmpty ? text : null,
       mediaPath: _pendingMedia?.path,
-      mediaType: _pendingType,
       createdAt: DateTime.now(),
-      replyTo: _replyingTo,
+      replyToId: _replyingTo?.id,
     );
 
+    // 🧠 Kiểm tra loại tin nhắn
+    final bool isTextOnly = text.isNotEmpty && _pendingMedia == null;
+    final bool isReplyTextOnly = _replyingTo != null && _pendingMedia == null;
+
+    // ⚡ Dọn UI NGAY (reset input)
     setState(() {
-      _messages.add(msg);
       _textController.clear();
       _pendingMedia = null;
-      _pendingType = null;
       _replyingTo = null;
     });
 
+    // 🌀 Cuộn xuống cuối
     _scrollToBottom();
+
+    // 🟢 Nếu chỉ text hoặc reply text thôi → add vào list luôn (không chờ server)
+    if (isTextOnly || isReplyTextOnly) {
+      setState(() {
+        _messages.add(msg);
+      });
+    }
+
+    // 🚀 Gửi tin nhắn lên server (vẫn gửi ngầm)
+    try {
+      await _chatService.sendMessage(
+        msg: msg,
+        conversationId: widget.conversationId,
+      );
+      print('✅ Tin nhắn đã gửi lên server');
+    } catch (e) {
+      print('❌ Gửi tin nhắn thất bại: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Không gửi được tin nhắn')));
+    }
   }
 
-  //////////////////////////////////////////////////////////
   // CUỘN XUỐNG CUỐI
-  //////////////////////////////////////////////////////////
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 200,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+
+  void _scrollToBottom({bool instant = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!_scrollController.hasClients) return;
+
+      // 🔁 Thử tối đa 3 lần để chắc chắn cuộn tới đáy
+      for (int i = 0; i < 3; i++) {
+        await Future.delayed(Duration(milliseconds: i * 150));
+        final maxScroll = _scrollController.position.maxScrollExtent;
+
+        if (instant) {
+          _scrollController.jumpTo(maxScroll);
+        } else {
+          await _scrollController.animateTo(
+            maxScroll,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+          );
+        }
+
+        // nếu đã gần cuối thì break
+        if ((_scrollController.position.pixels - maxScroll).abs() < 10) break;
       }
     });
   }
 
-  //////////////////////////////////////////////////////////
+  void _scrollToMessage(String messageId) async {
+    if (_messages.isEmpty || !_scrollController.hasClients) return;
+
+    final index = _messages.indexWhere((msg) => msg.id == messageId);
+    if (index == -1) return;
+
+    // 🧠 Đợi 1 frame để list build xong (giúp cuộn mượt, không delay tay)
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    // Ước lượng chiều cao mỗi item (tuỳ bạn)
+    const estimatedItemHeight = 80.0;
+    final targetOffset = (index * estimatedItemHeight).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
+
+    // 🌀 Cuộn mượt tới vị trí
+    if (_scrollController.hasClients) {
+      await _scrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
   // CHỌN ẢNH / VIDEO / CAMERA
-  //////////////////////////////////////////////////////////
+
   Future<void> _pickMedia() async {
     final picker = ImagePicker();
 
@@ -196,7 +291,6 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                           : MessageType.image;
                       setState(() {
                         _pendingMedia = File(media.path);
-                        _pendingType = type;
                       });
                     }
                   },
@@ -212,7 +306,6 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                     if (media != null) {
                       setState(() {
                         _pendingMedia = File(media.path);
-                        _pendingType = MessageType.image;
                       });
                     }
                   },
@@ -234,15 +327,22 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     );
   }
 
-  //////////////////////////////////////////////////////////
   // HIỂN THỊ TIN NHẮN
-  //////////////////////////////////////////////////////////
+
   Widget _buildMessage(MessageModel_chatscreen msg) {
     final isMine = msg.sentBy == me!.id;
     final bgColor = isMine ? primaryColor : Colors.grey.shade200;
     final textColor = isMine ? Colors.white : Colors.black87;
-    final hasMedia = msg.mediaPath != null;
+
+    final hasMedia = msg.mediaPath != null && msg.mediaPath!.isNotEmpty;
     final hasText = msg.text != null && msg.text!.isNotEmpty;
+
+    // 🔍 Lookup tin nhắn được reply dựa vào replyToId
+    final MessageModel_chatscreen? repliedMsg = (msg.replyToId != null)
+        ? (_messages.where((m) => m.id == msg.replyToId).isNotEmpty
+              ? _messages.firstWhere((m) => m.id == msg.replyToId)
+              : null)
+        : null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -264,13 +364,13 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                 ),
               if (!isMine) const SizedBox(width: 6),
 
-              // 📦 Bong bóng tin nhắn + nút reply bên phải
+              // 📦 Bong bóng tin nhắn
               Flexible(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // 🆕 Nút reply bên phải bong bóng
+                    // 🆕 Nút reply
                     IconButton(
                       icon: const Icon(
                         Icons.reply,
@@ -279,19 +379,91 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                       ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      onPressed: () {
-                        setState(() => _replyingTo = msg);
-                      },
+                      onPressed: () => setState(() => _replyingTo = msg),
                     ),
-                    // Bong bóng
+
                     Flexible(
                       child: Column(
                         crossAxisAlignment: isMine
                             ? CrossAxisAlignment.end
                             : CrossAxisAlignment.start,
                         children: [
-                          // 🔁 Nếu là tin nhắn reply
-                          if (msg.replyTo != null)
+                          // 🔁 Reply preview (tap để scroll)
+                          if (repliedMsg != null)
+                            GestureDetector(
+                              onTap: () => _scrollToMessage(repliedMsg.id),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                margin: const EdgeInsets.only(bottom: 4),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFE6F9FC),
+                                  borderRadius: BorderRadius.circular(21),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(width: 6),
+
+                                    // 📸 Thumbnail nếu reply là media
+                                    if (repliedMsg.mediaPath != null &&
+                                        repliedMsg.mediaPath!.isNotEmpty)
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(9),
+                                        child: SizedBox(
+                                          width: 50,
+                                          height: 50,
+                                          child:
+                                              repliedMsg.mediaPath!.endsWith(
+                                                '.mp4',
+                                              )
+                                              ? const Icon(
+                                                  FontAwesomeIcons.video,
+                                                  size: 20,
+                                                  color: Color(0xFFFFA726),
+                                                )
+                                              : (repliedMsg.mediaPath!
+                                                        .startsWith('http')
+                                                    ? Image.network(
+                                                        repliedMsg.mediaPath!,
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : Image.file(
+                                                        File(
+                                                          repliedMsg.mediaPath!,
+                                                        ),
+                                                        fit: BoxFit.cover,
+                                                      )),
+                                        ),
+                                      ),
+
+                                    const SizedBox(width: 8),
+
+                                    // 📝 Nội dung reply (text hoặc fallback)
+                                    Flexible(
+                                      child: Text(
+                                        (repliedMsg.text != null &&
+                                                repliedMsg.text!
+                                                    .trim()
+                                                    .isNotEmpty)
+                                            ? repliedMsg.text!
+                                            : (repliedMsg.mediaPath != null
+                                                  ? "[Media]"
+                                                  : "[Tin nhắn rỗng]"),
+                                        style: const TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 13,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          else if (msg.replyToId != null)
+                            // Nếu chưa có trong _messages (ví dụ message cũ chưa load)
                             Container(
                               padding: const EdgeInsets.all(6),
                               margin: const EdgeInsets.only(bottom: 4),
@@ -307,14 +479,10 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                                     size: 16,
                                     color: context.colorScheme.primary,
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 8),
                                   Flexible(
                                     child: Text(
-                                      msg.replyTo!.text ??
-                                          (msg.replyTo!.mediaType ==
-                                                  MessageType.image
-                                              ? "[Image]"
-                                              : "[Video]"),
+                                      "Đang trả lời (id: ${msg.replyToId})",
                                       style: const TextStyle(
                                         color: Colors.black54,
                                         fontSize: 13,
@@ -327,7 +495,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                               ),
                             ),
 
-                          // 🖼 MEDIA
+                          // 🖼 MEDIA (ảnh/video)
                           if (hasMedia)
                             Padding(
                               padding: EdgeInsets.only(bottom: hasText ? 4 : 0),
@@ -338,14 +506,19 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                                     maxWidth: 240,
                                     maxHeight: 320,
                                   ),
-                                  child: msg.mediaType == MessageType.image
-                                      ? Image.file(
-                                          File(msg.mediaPath!),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : _VideoPlayerBubble(
+                                  child: msg.mediaPath!.endsWith('.mp4')
+                                      ? _VideoPlayerBubble(
                                           videoPath: msg.mediaPath!,
-                                        ),
+                                        )
+                                      : (msg.mediaPath!.startsWith('http')
+                                            ? Image.network(
+                                                msg.mediaPath!,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Image.file(
+                                                File(msg.mediaPath!),
+                                                fit: BoxFit.cover,
+                                              )),
                                 ),
                               ),
                             ),
@@ -395,9 +568,32 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     );
   }
 
-  //////////////////////////////////////////////////////////
   // THANH NHẬP TIN NHẮN
-  //////////////////////////////////////////////////////////
+
+  // 🧠 Helper nhận diện loại file
+  bool _isImageFile(String path) {
+    final ext = p.extension(path).toLowerCase();
+    return [
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+      '.bmp',
+      '.heic',
+      '.webp',
+    ].contains(ext);
+  }
+
+  bool _isVideoFile(String path) {
+    final ext = p.extension(path).toLowerCase();
+    return ['.mp4', '.mov', '.avi', '.mkv', '.webm'].contains(ext);
+  }
+
+  bool _isAudioFile(String path) {
+    final ext = p.extension(path).toLowerCase();
+    return ['.mp3', '.wav', '.aac', '.m4a', '.flac'].contains(ext);
+  }
+
   Widget _buildInputBar() {
     return SafeArea(
       top: false,
@@ -412,38 +608,101 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 🆕 PREVIEW REPLY
+            // 🧩 PREVIEW REPLY
             if (_replyingTo != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(border: null),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F9FC), // nền xanh nhạt hiện đại
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.blue.shade100, width: 1),
+                ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.reply,
+                      Icons.reply_rounded,
                       size: 18,
                       color: context.colorScheme.primary,
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        _replyingTo!.text ??
-                            (_replyingTo!.mediaType == MessageType.image
-                                ? "[Image]"
-                                : "[Video]"),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.black87,
+                    const SizedBox(width: 8),
+
+                    // Nếu reply có media thì hiển thị thumbnail
+                    if (_replyingTo!.mediaPath != null &&
+                        _replyingTo!.mediaPath!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: _isVideoFile(_replyingTo!.mediaPath!)
+                              ? Container(
+                                  color: Colors.blueGrey.shade100,
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.videocam_rounded,
+                                    size: 22,
+                                    color: Colors.deepOrange,
+                                  ),
+                                )
+                              : (_replyingTo!.mediaPath!.startsWith('http')
+                                    ? Image.network(
+                                        _replyingTo!.mediaPath!,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.file(
+                                        File(_replyingTo!.mediaPath!),
+                                        fit: BoxFit.cover,
+                                      )),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                    const SizedBox(width: 8),
+
+                    // 📝 Nội dung hoặc mô tả media
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Replying to ${_replyingTo!.sentBy == me!.id ? "your message" : (other?.name ?? "someone")}",
+
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.5,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            (_replyingTo!.text != null &&
+                                    _replyingTo!.text!.trim().isNotEmpty)
+                                ? _replyingTo!.text!
+                                : (_isImageFile(_replyingTo!.mediaPath ?? '')
+                                      ? "Ảnh"
+                                      : _isVideoFile(
+                                          _replyingTo!.mediaPath ?? '',
+                                        )
+                                      ? "Video"
+                                      : "[Tin nhắn không có nội dung]"),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black54,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
+
+                    const SizedBox(width: 8),
+
                     GestureDetector(
                       onTap: () => setState(() => _replyingTo = null),
                       child: const Icon(
-                        Icons.close,
+                        Icons.close_rounded,
                         size: 18,
                         color: Colors.grey,
                       ),
@@ -452,7 +711,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                 ),
               ),
 
-            // PREVIEW MEDIA
+            // 📷 PREVIEW MEDIA (local đang chọn)
             if (_pendingMedia != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 8),
@@ -463,40 +722,40 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                 clipBehavior: Clip.hardEdge,
                 child: Stack(
                   children: [
-                    if (_pendingType == MessageType.image)
+                    if (_isVideoFile(_pendingMedia!.path))
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: SizedBox(
+                          width: 140,
+                          height: 180,
+                          child: _VideoPlayerBubble(
+                            videoPath: _pendingMedia!.path,
+                          ),
+                        ),
+                      )
+                    else if (_isImageFile(_pendingMedia!.path))
                       Image.file(
                         _pendingMedia!,
                         height: 140,
                         width: 90,
                         fit: BoxFit.cover,
                       )
-                    else if (_pendingType == MessageType.video)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: SizedBox(
-                          width: 140, // khung cố định
-                          height: 180, // auto fit như ảnh
-                          child: FittedBox(
-                            fit: BoxFit.cover,
-                            clipBehavior: Clip.hardEdge,
-                            child: SizedBox(
-                              width: 140,
-                              height: 180,
-                              child: _VideoPlayerBubble(
-                                videoPath: _pendingMedia!.path,
-                              ),
-                            ),
-                          ),
+                    else
+                      Container(
+                        height: 100,
+                        width: 120,
+                        color: Colors.grey.shade300,
+                        alignment: Alignment.center,
+                        child: const Text(
+                          "[Unsupported file]",
+                          style: TextStyle(fontSize: 12),
                         ),
                       ),
                     Positioned(
                       top: 6,
                       right: 6,
                       child: GestureDetector(
-                        onTap: () => setState(() {
-                          _pendingMedia = null;
-                          _pendingType = null;
-                        }),
+                        onTap: () => setState(() => _pendingMedia = null),
                         child: Container(
                           decoration: const BoxDecoration(
                             color: Colors.black45,
@@ -515,11 +774,15 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                 ),
               ),
 
-            // INPUT BAR
+            // 💬 INPUT BAR
             Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.attach_file, color: primaryColor, size: 28),
+                  icon: Icon(
+                    Icons.attach_file,
+                    color: context.colorScheme.primary,
+                    size: 28,
+                  ),
                   onPressed: _pickMedia,
                 ),
                 Expanded(
@@ -534,8 +797,12 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                       maxLines: 4,
                       decoration: const InputDecoration(
                         fillColor: Colors.transparent,
-                        hintText: "Enter your message...",
+                        hintText: "Nhập tin nhắn...",
                         border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -547,9 +814,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                     color: context.colorScheme.primary,
                   ),
                   onPressed: () {
-                    _sendMessage(); // Gửi tin nhắn
-
-                    // 👇 Đóng bàn phím
+                    _sendMessage();
                     FocusScope.of(context).unfocus();
                   },
                 ),
@@ -561,22 +826,30 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     );
   }
 
-  //////////////////////////////////////////////////////////
   // BUILD
-  //////////////////////////////////////////////////////////
+
   @override
   Widget build(BuildContext context) {
     if (_loadingUsers) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: context.colorScheme.surface,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (me == null || other == null) {
-      return const Scaffold(
-        body: Center(child: Text('Không tải được thông tin người dùng')),
+      return Scaffold(
+        backgroundColor: context.colorScheme.surface,
+        body: Center(child: Text('......')),
       );
     }
     if (_loadingMessages) {
       return const Center(child: CircularProgressIndicator());
+    }
+    if (!_loadingMessages && _messages.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom(instant: true);
+      });
     }
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -657,9 +930,8 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
   }
 }
 
-
 class _VideoPlayerBubble extends StatefulWidget {
-  final String videoPath; // Có thể là local path hoặc URL
+  final String videoPath; // URL video (http/https)
   const _VideoPlayerBubble({required this.videoPath});
 
   @override
@@ -667,135 +939,23 @@ class _VideoPlayerBubble extends StatefulWidget {
 }
 
 class _VideoPlayerBubbleState extends State<_VideoPlayerBubble> {
-  VideoPlayerController? _controller;
+  late VideoPlayerController _controller;
   bool _isInit = false;
-  bool _isDownloading = false;
-  bool _needDownload = false;
-  String? _localPath;
 
   @override
   void initState() {
     super.initState();
-    _checkAndPrepareVideo();
+    _initVideo();
   }
 
-  // =====================================================
-  // 🧩 Kiểm tra đường dẫn video
-  // =====================================================
-  Future<void> _checkAndPrepareVideo() async {
-    final isUrl =
-        widget.videoPath.startsWith('http://') ||
-        widget.videoPath.startsWith('https://');
-
-    if (!isUrl) {
-      // 👉 Là path local → phát luôn
-      _localPath = widget.videoPath;
-      await _initPlayer(_localPath!);
-      return;
-    }
-
-    // 👉 Nếu là URL → kiểm tra file trong thư mục app
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName = p.basename(widget.videoPath);
-    final localFile = File('${dir.path}/$fileName');
-    _localPath = localFile.path;
-
-    if (localFile.existsSync()) {
-      // Đã tải → phát luôn
-      await _initPlayer(_localPath!);
-    } else {
-      // Chưa có → yêu cầu tải về
-      setState(() => _needDownload = true);
-    }
-  }
-
-  // =====================================================
-  // ⬇️ Tải video về local
-  // =====================================================
-  Future<void> _downloadVideo() async {
-    try {
-      setState(() => _isDownloading = true);
-      final response = await http.get(Uri.parse(widget.videoPath));
-      if (response.statusCode == 200) {
-        final file = File(_localPath!);
-        await file.writeAsBytes(response.bodyBytes);
-        setState(() => _needDownload = false);
-        await _initPlayer(_localPath!);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Tải video thất bại (${response.statusCode})'),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Lỗi tải video: $e')));
-    } finally {
-      setState(() => _isDownloading = false);
-    }
-  }
-
-  // =====================================================
-  // 🎬 Khởi tạo VideoPlayerController
-  // =====================================================
-  Future<void> _initPlayer(String path) async {
-    _controller = VideoPlayerController.file(File(path));
-    await _controller!.initialize();
-    // ❌ KHÔNG tự động play
+  Future<void> _initVideo() async {
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoPath));
+    await _controller.initialize();
     setState(() => _isInit = true);
   }
 
-  // =====================================================
-  // 🧱 Giao diện
-  // =====================================================
   @override
   Widget build(BuildContext context) {
-    // Nếu chưa tải video (chưa có file local)
-    if (_needDownload) {
-      return AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // 🩶 Nền xám giả video
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF00C9FF), // xanh năng lượng
-                    Color.fromARGB(255, 71, 245, 233), // xanh lá nhạt tươi
-                    Color(0xFF8E2DE2), // tím mạnh
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            // Hiện nút tải
-            _isDownloading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.download,
-                          color: Colors.white,
-                          size: 39,
-                        ),
-                        onPressed: _downloadVideo,
-                      ),
-                    ],
-                  ),
-          ],
-        ),
-      );
-    }
-
-    // Nếu video đang khởi tạo
     if (!_isInit) {
       return const SizedBox(
         width: 180,
@@ -804,16 +964,18 @@ class _VideoPlayerBubbleState extends State<_VideoPlayerBubble> {
       );
     }
 
-    // ✅ Khi video đã sẵn sàng
     return AspectRatio(
-      aspectRatio: _controller!.value.aspectRatio,
+      aspectRatio: _controller.value.aspectRatio,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          VideoPlayer(_controller!),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: VideoPlayer(_controller),
+          ),
           IconButton(
             icon: Icon(
-              _controller!.value.isPlaying
+              _controller.value.isPlaying
                   ? Icons.pause_circle
                   : Icons.play_circle,
               color: Colors.white,
@@ -821,10 +983,10 @@ class _VideoPlayerBubbleState extends State<_VideoPlayerBubble> {
             ),
             onPressed: () {
               setState(() {
-                if (_controller!.value.isPlaying) {
-                  _controller!.pause();
+                if (_controller.value.isPlaying) {
+                  _controller.pause();
                 } else {
-                  _controller!.play();
+                  _controller.play();
                 }
               });
             },
@@ -836,7 +998,7 @@ class _VideoPlayerBubbleState extends State<_VideoPlayerBubble> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _controller.dispose();
     super.dispose();
   }
 }

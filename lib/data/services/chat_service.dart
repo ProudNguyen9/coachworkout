@@ -1,12 +1,104 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:coach_workout/data/models/model_for_chatscreen.dart';
 import 'package:coach_workout/data/models/conversation_model.dart';
 import 'package:mime/mime.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 
 class ChatService {
   final SupabaseClient _client = Supabase.instance.client;
+  final String _bucketName = 'images';
+
+
+
+ /// 🔥 Lắng nghe tin nhắn mới trong 1 conversation cụ thể (realtime)
+RealtimeChannel listenForMessages({
+  required String conversationId,
+  required void Function(MessageModel_chatscreen message) onNewMessage,
+}) {
+  final channel = _client.channel('messages-realtime-$conversationId');
+
+  channel.onPostgresChanges(
+    event: PostgresChangeEvent.insert,
+    schema: 'public',
+    table: 'messages',
+    // 👇 Dùng PostgresChangeFilter thay vì Map
+    filter: PostgresChangeFilter(
+      type: PostgresChangeFilterType.eq,
+      column: 'conversation_id',
+      value: conversationId,
+    ),
+    callback: (payload) {
+      final data = payload.newRecord;
+      if (data == null) return;
+
+      try {
+        final msg = MessageModel_chatscreen.fromMap(data);
+        onNewMessage(msg);
+      } catch (e) {
+        print('❌ Lỗi parse message realtime: $e');
+      }
+    },
+  ).subscribe();
+
+  return channel;
+}
+
+
+/// 📨 Gửi tin nhắn lên Supabase (gọn – không cần type)
+Future<void> sendMessage({
+  required MessageModel_chatscreen msg,
+  required String conversationId,
+}) async {
+  try {
+    String? mediaUrl;
+
+    // =============================
+    // 🗂️ 1️⃣ Nếu có media thì upload
+    // =============================
+    if (msg.mediaPath != null && msg.mediaPath!.isNotEmpty) {
+      final file = File(msg.mediaPath!);
+      final ext = p.extension(msg.mediaPath!).toLowerCase();
+      final fileName =
+          '${msg.sentBy}_${DateTime.now().millisecondsSinceEpoch}$ext';
+
+      // Upload lên Supabase Storage
+      await _client.storage.from(_bucketName).upload('messages/$fileName', file);
+
+      // Lấy public URL sau upload
+      mediaUrl = _client.storage
+          .from(_bucketName)
+          .getPublicUrl('messages/$fileName');
+    }
+
+    // =============================
+    // 💾 2️⃣ Chuẩn bị dữ liệu insert
+    // =============================
+    final payload = {
+      'id': msg.id,
+      'conversation_id': conversationId,
+      'sender_id': msg.sentBy,
+      // chỉ lưu text thôi, media có field riêng
+      'content': msg.text ?? '',
+      'created_at': msg.createdAt.toIso8601String(),
+      'reply_to_id': msg.replyToId,
+      'media_url': mediaUrl, // ảnh/video nếu có
+    };
+
+    // =============================
+    // 🚀 3️⃣ Insert lên Supabase
+    // =============================
+    await _client.from('messages').insert(payload);
+
+    print('✅ Gửi tin nhắn thành công: ${msg.text ?? msg.mediaPath}');
+  } catch (e, st) {
+    print('❌ Lỗi khi gửi tin nhắn: $e\n$st');
+    rethrow;
+  }
+}
+
 
   /// 🧩 Lấy danh sách hội thoại của người dùng hiện tại
   Future<List<ConversationModel>> getUserConversations() async {
@@ -26,129 +118,55 @@ class ChatService {
       rethrow;
     }
   }
+Future<List<MessageModel_chatscreen>> getMessagesBetweenUsers(
+  String conversationId,
+) async {
+  try {
+    final response = await _client.rpc(
+      'get_messages_between_users',
+      params: {'p_conversation_id': conversationId},
+    );
 
-  Future<List<MessageModel_chatscreen>> getMessagesBetweenUsers(
-    String conversationId,
-  ) async {
-    try {
-      final response = await _client.rpc(
-        'get_messages_between_users',
-        params: {'p_conversation_id': conversationId},
+    if (response == null) return [];
+
+    final List<dynamic> data =
+        response is String ? jsonDecode(response) : response as List;
+
+    final messages = data.map((json) {
+      final messageId = json['message_id']?.toString() ?? '';
+      final senderId = json['sender_id']?.toString() ?? '';
+      final content = json['content'];
+      final mediaUrl = json['media_url'];
+      final createdAt =
+          DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now();
+
+      final replyToId = json['reply_to_id']?.toString();
+
+      return MessageModel_chatscreen(
+        id: messageId,
+        sentBy: senderId,
+        text: content,
+        mediaPath: mediaUrl,
+        createdAt: createdAt,
+        replyToId: replyToId,
       );
+    }).toList();
 
-      if (response == null) return [];
+    // 🔹 Sắp xếp theo thời gian
+    messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-      final List<dynamic> data = response is String
-          ? jsonDecode(response)
-          : response as List;
-
-      final List<MessageModel_chatscreen> messages = [];
-
-      for (final json in data) {
-        final messageId = json['message_id'] ?? '';
-        final senderId = json['sender_id'] ?? '';
-        final content = json['content'] ?? '';
-        final createdAt =
-            DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now();
-        final replyToId = json['reply_to_id'];
-        final replyContent = json['reply_content'];
-
-        // ✅ Nhận diện loại tin nhắn
-        final messageType = _detectMessageType(content);
-
-        if (replyToId != null && replyContent != null) {
-          // 🟢 Tin nhắn có reply
-          messages.add(
-            MessageModel_chatscreen(
-              id: messageId,
-              sentBy: senderId,
-              text: (messageType == MessageType.text) ? content : null,
-              mediaPath:
-                  (messageType == MessageType.image ||
-                      messageType == MessageType.video)
-                  ? content
-                  : null,
-              mediaType: messageType,
-              createdAt: createdAt,
-              replyTo: MessageModel_chatscreen(
-                id: replyToId,
-                sentBy: senderId,
-                text: replyContent,
-                createdAt: createdAt,
-                mediaPath: null,
-                mediaType: MessageType.text,
-              ),
-            ),
-          );
-        } else {
-          // 🔵 Tin nhắn thường
-          messages.add(
-            MessageModel_chatscreen(
-              id: messageId,
-              sentBy: senderId,
-              text: (messageType == MessageType.text) ? content : null,
-              mediaPath:
-                  (messageType == MessageType.image ||
-                      messageType == MessageType.video)
-                  ? content
-                  : null,
-              mediaType: messageType,
-              createdAt: createdAt,
-            ),
-          );
-        }
-      }
-
-      // 🔹 Sắp xếp theo thời gian tăng dần
-      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
-      return messages;
-    } catch (error, stack) {
-      print('❌ Error getMessagesBetweenUsers: $error');
-      print(stack);
-      rethrow;
-    }
+    return messages;
+  } catch (error, stack) {
+    print('❌ Error getMessagesBetweenUsers: $error');
+    print(stack);
+    rethrow;
   }
+}
 
-  /// 🔍 Hàm nhận diện loại message (image / video / text)
-  MessageType _detectMessageType(String content) {
-    try {
-      final lower = content.toLowerCase();
 
-      // 1) Nếu server trả về mimeType cho URL -> dùng nó
-      final mimeType = lookupMimeType(content) ?? '';
 
-      if (mimeType.isNotEmpty) {
-        if (mimeType.startsWith('image/')) return MessageType.image;
-        if (mimeType.startsWith('video/')) return MessageType.video;
-        // nếu là audio thì fallback về text (enum hiện tại không có audio)
-        if (mimeType.startsWith('audio/')) return MessageType.text;
-      }
 
-      // 2) Nếu không có mime, kiểm tra extension như fallback
-      final ext = path.extension(content).toLowerCase();
-      const imageExt = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
-      const videoExt = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.3gp'];
-
-      if (imageExt.contains(ext) ||
-          lower.contains('/images/') ||
-          lower.contains('/image/')) {
-        return MessageType.image;
-      }
-
-      if (videoExt.contains(ext) ||
-          lower.contains('/videos/') ||
-          lower.contains('/video/')) {
-        return MessageType.video;
-      }
-    } catch (e) {
-      // nếu có lỗi, trả về text làm mặc định
-      print('⚠️ _detectMessageType error: $e');
-    }
-
-    return MessageType.text;
-  }
-
+  
   /// ✅ ID người dùng hiện tại
   String? get currentUserId => _client.auth.currentUser?.id;
 
@@ -244,6 +262,35 @@ class ChatService {
       rethrow;
     }
   }
+
+
+
+
+  /// 🔥 Lắng nghe mọi thay đổi tin nhắn (để update danh sách hội thoại)
+RealtimeChannel listenForConversationUpdates({
+  required String currentUserId,
+  required void Function(Map<String, dynamic> newMessage) onMessageUpdate,
+}) {
+  final channel = _client.channel('messages-realtime-conversations');
+
+  channel.onPostgresChanges(
+    event: PostgresChangeEvent.insert,
+    schema: 'public',
+    table: 'messages',
+    callback: (payload) {
+      final data = payload.newRecord;
+      if (data == null) return;
+
+      // ⚡ Chỉ quan tâm đến hội thoại có liên quan tới user hiện tại
+      if (data['sender_id'] == currentUserId || data['receiver_id'] == currentUserId) {
+        onMessageUpdate(data);
+      }
+    },
+  ).subscribe();
+
+  return channel;
+}
+
 }
 
 class ChatUserPair {

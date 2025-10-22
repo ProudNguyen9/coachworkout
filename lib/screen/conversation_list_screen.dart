@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/services/chat_service.dart';
 import '../../data/models/conversation_model.dart';
 import 'screens.dart';
@@ -18,10 +19,20 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   bool _isLoading = true;
   bool _isRefreshing = false;
 
+  RealtimeChannel? _conversationChannel; // 👈 Thêm realtime channel
+
   @override
   void initState() {
     super.initState();
     _loadConversations();
+    _setupRealtime(); // 👈 Thêm phần này
+  }
+
+  @override
+  void dispose() {
+    _conversationChannel?.unsubscribe(); // 👈 huỷ khi thoát màn
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadConversations() async {
@@ -44,10 +55,33 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     setState(() => _isRefreshing = false);
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  /// 🔥 Lắng nghe thay đổi từ bảng messages (realtime)
+  void _setupRealtime() {
+    final currentUserId = _chatService.currentUserId;
+    if (currentUserId == null) return;
+
+    _conversationChannel = _chatService.listenForConversationUpdates(
+      currentUserId: currentUserId,
+      onMessageUpdate: (msg) async {
+        final conversationId = msg['conversation_id'];
+        if (conversationId == null) return;
+
+        // 🔎 Tìm hội thoại có sẵn
+        final index = _conversations.indexWhere((c) => c.id == conversationId);
+
+        if (index != -1) {
+          // 🔄 Cập nhật last message ngay
+          final updatedConv = _conversations[index].copyWithLastMessage(msg);
+          setState(() {
+            _conversations.removeAt(index);
+            _conversations.insert(0, updatedConv);
+          });
+        } else {
+          // 🆕 Nếu là hội thoại mới, reload toàn bộ danh sách
+          await _loadConversations();
+        }
+      },
+    );
   }
 
   @override
@@ -85,10 +119,8 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
               // 🔍 Search bar
               Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: TextField(
                   controller: _searchController,
                   readOnly: true,
@@ -133,15 +165,14 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                           itemBuilder: (context, index) {
                             final c = _conversations[index];
                             final currentId = _chatService.currentUserId;
-                            final partner = currentId == c.user1?.id
-                                ? c.user2
-                                : c.user1;
+                            final partner =
+                                currentId == c.user1?.id ? c.user2 : c.user1;
 
                             final displayName =
                                 partner?.name ?? partner?.email ?? 'User';
                             final avatarUrl =
                                 partner?.avatarUrl ??
-                                'https://i.pravatar.cc/150?img=${index + 3}';
+                                    'https://i.pravatar.cc/150?img=${index + 3}';
                             final lastMessage =
                                 c.lastMessage?.content ?? 'No messages yet';
 
@@ -151,8 +182,8 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        CustomChatScreen(conversationId: c.id),
+                                    builder: (context) => CustomChatScreen(
+                                        conversationId: c.id),
                                   ),
                                 );
                               },

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 
-
 class YoursCoach extends StatelessWidget {
   const YoursCoach({super.key});
 
@@ -24,7 +23,7 @@ class YoursCoach extends StatelessWidget {
         'specialty': 'Yoga & Flexibility',
         'avatar': 'https://i.pravatar.cc/300?img=47',
         'background':
-            'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?w=800',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s',
       },
     ];
 
@@ -34,21 +33,21 @@ class YoursCoach extends StatelessWidget {
         'specialty': 'Cardio & HIIT',
         'avatar': 'https://i.pravatar.cc/300?img=56',
         'background':
-            'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?w=800',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s',
       },
       {
         'name': 'Emma Tran',
         'specialty': 'Pilates Expert',
         'avatar': 'https://i.pravatar.cc/300?img=32',
         'background':
-            'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?w=800',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrdOI-pFGm7VdHOcUd6oDxmu1KVtpPMRqE_A&s',
       },
       {
         'name': 'Michael Scott',
         'specialty': 'Bodyweight Coach',
         'avatar': 'https://i.pravatar.cc/300?img=65',
         'background':
-            'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?w=800',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s',
       },
     ];
 

@@ -14,7 +14,7 @@ class RoutesNotifier with ChangeNotifier {
       final session = data.session;
 
       if (event == AuthChangeEvent.signedIn && session != null) {
-        navigationKey.currentContext?.go(RouteLocation.home);
+        navigationKey.currentContext?.go(RouteLocation.onboarding);
       } else if (event == AuthChangeEvent.signedOut) {
         navigationKey.currentContext?.go(RouteLocation.login);
       }

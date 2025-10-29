@@ -23,7 +23,7 @@ class NutritionPlanScreen extends StatelessWidget {
         'calories': 650,
         'food': 'Grilled chicken with brown rice & broccoli',
         'image':
-            'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800',
+            'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800',
       },
       {
         'name': 'Snack',
@@ -37,7 +37,7 @@ class NutritionPlanScreen extends StatelessWidget {
         'calories': 580,
         'food': 'Salmon with quinoa & avocado',
         'image':
-            'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800',
+            'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800',
       },
     ];
 

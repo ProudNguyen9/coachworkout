@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
 
+import 'screens.dart';
+
 class WorkoutScreen extends StatelessWidget {
   static WorkoutScreen builder(BuildContext context, GoRouterState state) =>
       const WorkoutScreen();
@@ -14,6 +16,29 @@ class WorkoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9, // chiếm 90%
+        height: 56,
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => WorkoutSession()),
+            );
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(21),
+          ),
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            "Do this exercise ",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+
       backgroundColor: Colors.white, // nền tổng thể trắng
       body: SafeArea(
         child: Column(
@@ -82,7 +107,7 @@ class WorkoutScreen extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Set 1 × 2 Rounds',
+                        'Set 1 × 9 Rounds',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -252,7 +277,7 @@ void showExerciseDetail(BuildContext context) {
 
                   // Tên bài tập
                   const Text(
-                    'Bật nhảy',
+                    'jumbale',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -266,7 +291,7 @@ void showExerciseDetail(BuildContext context) {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'THỜI LƯỢNG',
+                        'Time of workout',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -286,7 +311,7 @@ void showExerciseDetail(BuildContext context) {
 
                   // Hướng dẫn
                   Text(
-                    'HƯỚNG DẪN',
+                    'Tutorio',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -295,10 +320,10 @@ void showExerciseDetail(BuildContext context) {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Bắt đầu đứng hai chân để gần nhau, tay buông xuống để hai bên, '
-                    'sau đó nhảy lên chân dang ra và để tay lên cao trên đầu. '
-                    'Trở lại vị trí bắt đầu rồi lặp lại.\n\n'
-                    'Bài tập này tập luyện cho toàn thân và có tác dụng với tất cả các nhóm cơ lớn.',
+                    'Start by standing with your feet close together and your arms relaxed at your sides.'
+                    'Then, jump up while spreading your legs apart and raising your arms above your head.'
+                    'Return to the starting position and repeat.'
+                    'This exercise works the entire body and targets all major muscle groups.',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.black87,
@@ -320,7 +345,7 @@ void showExerciseDetail(BuildContext context) {
                         ),
                       ),
                       child: const Text(
-                        'XONG',
+                        'Finish',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../widgets/widgets.dart';
+import '../screens.dart';
 
 class OverviewScreen extends StatelessWidget {
   const OverviewScreen({super.key});
@@ -158,71 +159,81 @@ class OverviewScreen extends StatelessWidget {
               children: [
                 // Nút 1: Workout with AI
                 Expanded(
-                  child: Container(
-                    height: 150,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF673AB7),
-                          Color(0xFF00B5D8),
-                          Color(0xFFCA33FF),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CustomChatScreenAI(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 150,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF673AB7),
+                            Color(0xFF00B5D8),
+                            Color(0xFFCA33FF),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 9,
-                          left: 10,
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(
-                                255,
-                                227,
-                                225,
-                                225,
-                              ).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 9,
-                          right: 10,
-                          child: Container(
-                            width: 90,
-                            height: 90,
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(
-                                255,
-                                227,
-                                225,
-                                225,
-                              ).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Text(
-                              'AI\nTraining',
-                              style: GoogleFonts.montserrat(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 20,
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 9,
+                            left: 10,
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(
+                                  255,
+                                  227,
+                                  225,
+                                  225,
+                                ).withOpacity(0.1),
+                                shape: BoxShape.circle,
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            top: 9,
+                            right: 10,
+                            child: Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(
+                                  255,
+                                  227,
+                                  225,
+                                  225,
+                                ).withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text(
+                                'AI\n Consult',
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -351,28 +362,36 @@ class OverviewScreen extends StatelessWidget {
               child: Row(
                 children: [
                   buildCoachCard(
-                    "https://images.unsplash.com/photo-1606813907291-25c3bbf3f79f?w=300",
-                    "Kolbjørn Lindberg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrdOI-pFGm7VdHOcUd6oDxmu1KVtpPMRqE_A&s",
+                    "Alex Morgan",
                   ),
                   buildCoachCard(
-                    "https://images.unsplash.com/photo-1571019613576-2b22c76fd955?w=300",
-                    "Seba Vega",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxV7ToOVEGNyP05_I6kdLnxDrGwKF_mOmcqQ&s",
+                    "Maya Santos",
                   ),
                   buildCoachCard(
-                    "https://images.unsplash.com/photo-1594737625785-c5c87c92a0f9?w=300",
-                    "Reborn Coach",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s",
+                    "Daniel Lee",
                   ),
                   buildCoachCard(
-                    "https://images.unsplash.com/photo-1606813907291-25c3bbf3f79f?w=300",
-                    "Kolbjørn Lindberg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxV7ToOVEGNyP05_I6kdLnxDrGwKF_mOmcqQ&s",
+                    "Sophia Grant",
                   ),
                   buildCoachCard(
-                    "https://images.unsplash.com/photo-1571019613576-2b22c76fd955?w=300",
-                    "Seba Vega",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s",
+                    "Chris Patel",
                   ),
                   buildCoachCard(
-                    "https://images.unsplash.com/photo-1594737625785-c5c87c92a0f9?w=300",
-                    "Reborn Coach",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxV7ToOVEGNyP05_I6kdLnxDrGwKF_mOmcqQ&s",
+                    "Ava Thompson",
+                  ),
+                  buildCoachCard(
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrdOI-pFGm7VdHOcUd6oDxmu1KVtpPMRqE_A&s",
+                    "Marco Alvarez",
+                  ),
+                  buildCoachCard(
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s",
+                    "Nina Håkansson",
                   ),
                 ],
               ),

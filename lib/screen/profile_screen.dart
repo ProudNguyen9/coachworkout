@@ -36,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
                 Center(
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/tip1.jpg',
+                      'assets/male.png',
                       width: 92,
                       height: 92,
                       fit: BoxFit.cover,

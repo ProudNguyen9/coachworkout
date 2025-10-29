@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/widgets.dart';
+import '../screens.dart';
 
 class AtHomeScreen extends StatelessWidget {
   const AtHomeScreen({super.key});
@@ -63,7 +64,14 @@ class AtHomeScreen extends StatelessWidget {
                     title: workout["title"]!,
                     description: workout["description"]!,
                     times: workout["times"]!,
-                    ontap: () {},
+                    ontap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WorkoutScreen(),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

@@ -1,11 +1,14 @@
+import 'package:coach_workout/screen/screens.dart';
 import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-    static ProfileSetupScreen builder(BuildContext context, GoRouterState state) =>
-      ProfileSetupScreen();
+  static ProfileSetupScreen builder(
+    BuildContext context,
+    GoRouterState state,
+  ) => ProfileSetupScreen();
   const ProfileSetupScreen({super.key});
 
   @override
@@ -172,7 +175,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
               const Gap(50),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.cyan[600],
                   foregroundColor: Colors.white,

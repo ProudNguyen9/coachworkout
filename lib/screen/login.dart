@@ -1,5 +1,7 @@
 import 'package:coach_workout/config/config.dart';
 import 'package:coach_workout/config/theme/color_scheme_extension.dart';
+import 'package:coach_workout/screen/register.dart';
+import 'package:coach_workout/screen/screens.dart';
 import 'package:coach_workout/widgets/widgets.dart';
 
 import 'package:flutter/material.dart';
@@ -112,7 +114,13 @@ class LoginScreen extends StatelessWidget {
                               const Spacer(),
                               InkWell(
                                 onTap: () {
-                                  context.go(RouteLocation.resetpass);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ResetPasswordScreen(),
+                                    ),
+                                  );
                                 },
                                 child: Text(
                                   "Forget password?",
@@ -158,7 +166,12 @@ class LoginScreen extends StatelessWidget {
                               Gap(10),
                               OutlinedButton(
                                 onPressed: () {
-                                  context.go(RouteLocation.register);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RegisterScreen(),
+                                    ),
+                                  );
                                 },
                                 style: OutlinedButton.styleFrom(
                                   minimumSize: Size(140, 45),

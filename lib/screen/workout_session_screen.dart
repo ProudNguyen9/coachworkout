@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'package:coach_workout/utils/utils.dart';
+import 'package:coach_workout/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:video_player/video_player.dart';
 
 class WorkoutSession extends StatefulWidget {
   static WorkoutSession builder(BuildContext context, GoRouterState state) =>
@@ -26,14 +27,53 @@ class _WorkoutSessionState extends State<WorkoutSession> {
   final int currentExercise = 1;
   final int totalExercises = 10;
   final String exerciseName = "Jumping Jacks";
-  final String exerciseImage = "assets/tip1.jpg";
+
+  // 🔹 Danh sách video luân phiên
+  final List<String> videoUrls = [
+    "https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/AIserver/pose_video_024031dd3b444bfa8dbb35d155c85eb2.mp4",
+    "https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/voice/The_same_man_202510250056_tsvgg.mp4",
+  ];
+
+  int currentVideoIndex = 0;
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
+    _initializeVideo();
     _startTimer();
   }
 
+  // 🔹 Khởi tạo video
+  void _initializeVideo() {
+    _controller =
+        VideoPlayerController.networkUrl(
+            Uri.parse(videoUrls[currentVideoIndex]),
+          )
+          ..setLooping(false)
+          ..initialize().then((_) {
+            setState(() {});
+            _controller.play();
+          });
+
+    // Khi video kết thúc → tự đổi sang video kế tiếp
+    _controller.addListener(() {
+      if (_controller.value.position >= _controller.value.duration &&
+          !_controller.value.isPlaying) {
+        _switchVideo();
+      }
+    });
+  }
+
+  // 🔹 Chuyển video kế tiếp
+  void _switchVideo() async {
+    currentVideoIndex = (currentVideoIndex + 1) % videoUrls.length;
+    await _controller.pause();
+    await _controller.dispose();
+    _initializeVideo();
+  }
+
+  // 🔹 Đếm ngược
   void _startTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!isPaused) {
@@ -44,25 +84,35 @@ class _WorkoutSessionState extends State<WorkoutSession> {
           });
         } else {
           t.cancel();
+          _controller.pause();
           context.go('/next-exercise');
         }
       }
     });
   }
 
+  // 🔹 Tạm dừng / tiếp tục
   void togglePause() {
-    setState(() => isPaused = !isPaused);
+    setState(() {
+      isPaused = !isPaused;
+      if (isPaused) {
+        _controller.pause();
+      } else {
+        _controller.play();
+      }
+    });
   }
 
   @override
   void dispose() {
     timer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final primary = context.colorScheme.primary;
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -77,7 +127,7 @@ class _WorkoutSessionState extends State<WorkoutSession> {
         title: Text(
           "Exercise $currentExercise/$totalExercises",
           style: GoogleFonts.poppins(
-            fontSize: 20, // 🔹 chữ to hơn
+            fontSize: 20,
             fontWeight: FontWeight.w700,
             color: Colors.black87,
           ),
@@ -96,18 +146,18 @@ class _WorkoutSessionState extends State<WorkoutSession> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 🔹 Hình ảnh bài tập
+            // 🔹 Video bài tập
             Expanded(
               flex: 4,
               child: Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    exerciseImage,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
+                  child: _controller.value.isInitialized
+                      ? AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        )
+                      : const Center(child: CircularProgressIndicator()),
                 ),
               ),
             ),
@@ -136,8 +186,6 @@ class _WorkoutSessionState extends State<WorkoutSession> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  /// 🔹 Vòng tròn tiến trình
                   TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0, end: progress),
                     duration: const Duration(milliseconds: 500),
@@ -175,6 +223,7 @@ class _WorkoutSessionState extends State<WorkoutSession> {
                     _pauseButton(primary),
                     _controlButton(Icons.skip_next_rounded, "Skip", () {
                       timer?.cancel();
+                      _controller.pause();
                       context.go('/next-exercise');
                     }, primary),
                   ],
@@ -273,16 +322,15 @@ void _showQuitBottomSheet(BuildContext context) {
               ),
             ),
             const SizedBox(height: 28),
-
-            // 🔹 Nút Quit
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
                 onPressed: () {
-                  // ✅ Ví dụ: quay về Home
-                  // timer?.cancel();
-                  // context.go('/home');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -301,8 +349,6 @@ void _showQuitBottomSheet(BuildContext context) {
               ),
             ),
             const SizedBox(height: 10),
-
-            // 🔹 Nút Close
             SizedBox(
               width: double.infinity,
               height: 48,

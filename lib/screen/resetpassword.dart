@@ -1,5 +1,6 @@
 import 'package:coach_workout/config/config.dart';
 import 'package:coach_workout/config/theme/color_scheme_extension.dart';
+import 'package:coach_workout/screen/login.dart';
 import 'package:coach_workout/utils/extensions.dart';
 import 'package:coach_workout/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,12 @@ class ResetPasswordScreen extends StatelessWidget {
                     children: [
                       OutlinedButton(
                         onPressed: () {
-                          context.go(RouteLocation.login);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(),
+                            ),
+                          );
                         },
                         style: OutlinedButton.styleFrom(
                           minimumSize: Size(100, 45),

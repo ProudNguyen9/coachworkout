@@ -16,18 +16,26 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isOwner = true;
     return Scaffold(
-      bottomNavigationBar: NavBarBottom(),
       backgroundColor: context.colorScheme.surface,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(20),
-            Center(
-              child: TextTile(
-                // ignore: dead_code
-                title: isOwner ? "My Profile" : "User Join Profile",
-              ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                Gap(80),
+                Center(
+                  child: TextTile(
+                    // ignore: dead_code
+                    title: isOwner ? "My Profile" : "User Join Profile",
+                  ),
+                ),
+              ],
             ),
             const Gap(20),
             Row(

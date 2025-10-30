@@ -101,7 +101,7 @@ class AtGymScreen extends StatelessWidget {
                   GymCard(
                     Title: 'Barbell Rows',
                     onTap: () {},
-                    path: 'assets/tip1.jpg',
+                    path: 'assets/fullbody1.png',
                     time: '10 Minutes',
                     rep: '9',
                   ),

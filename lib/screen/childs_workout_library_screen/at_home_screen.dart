@@ -1,34 +1,54 @@
 import 'package:coach_workout/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../widgets/widgets.dart';
 import '../screens.dart';
+import '../../providers/group_exercise_provider.dart';
 
-class AtHomeScreen extends StatelessWidget {
+class AtHomeScreen extends StatefulWidget {
   const AtHomeScreen({super.key});
 
   @override
+  State<AtHomeScreen> createState() => _AtHomeScreenState();
+}
+
+class _AtHomeScreenState extends State<AtHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    /// 🔹 Gọi load dữ liệu Supabase, chỉ chạy 1 lần duy nhất
+    Future.microtask(() {
+      final provider = context.read<GroupExerciseProvider>();
+      provider.fetchBeginnerExercises(limitCount: 3);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final provider = context.watch<GroupExerciseProvider>();
+    final beginnerList = provider.beginnerList;
+    final isLoading = provider.isLoading;
+
     return Scaffold(
       backgroundColor: context.colorScheme.surface,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Gap(19),
+            const Gap(19),
+
+            // 🔍 Search Field
             Center(
               child: SizedBox(
                 height: 52,
                 width: context.deviceSize.width - 30,
-                //search fiel
                 child: TextField(
-                  onChanged: null,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hint: Text('Fill your context ....'),
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Find your workout...',
                     fillColor: context.colorScheme.surface,
                     focusColor: context.colorScheme.surface,
                     border: OutlineInputBorder(
@@ -38,44 +58,68 @@ class AtHomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+
             const Gap(10),
-            TextTile(title: 'Target Area'),
+
+            // 🎯 Target Area
+            const TextTile(title: 'Target Area'),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: MuscleScrollRow(),
             ),
 
-            // banner  movivated
-            BannerChild(
+            // 🏁 Weekly Challenge Banner
+            const BannerChild(
               Title: '  Weekly Challenge',
               TitleChild: 'Plank With Hip Twist',
               path: 'assets/banner_library.png',
             ),
-            //
+
+            // 🏋️ Beginner Workout Section
             TitleTextAndButtonSA(onPressed: () {}, title: 'Beginner Workout'),
-            SizedBox(
-              height: 240,
-              child: ListView.builder(
-                itemCount: 3,
+
+            if (isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (beginnerList.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text("No workouts found 😕"),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: beginnerList.length,
                 itemBuilder: (context, index) {
-                  final workout = beginnerWorkouts[index];
+                  final workout = beginnerList[index];
                   return ItemListBeginner(
-                    path: workout["path"]!,
-                    title: workout["title"]!,
-                    description: workout["description"]!,
-                    times: workout["times"]!,
+                    path: workout.urlThumbnail ?? '',
+                    title: workout.title,
+                    description: workout.description ?? '',
+                    // times: workout.duration ?? '',
                     ontap: () {
+                      print("heheh ${workout.id}");
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => WorkoutScreen(),
+                          builder: (_) => WorkoutScreen(
+                            groupId: workout.id,
+
+                            groupName: workout.title,
+                          ),
                         ),
                       );
                     },
                   );
                 },
               ),
-            ),
+
+            const Gap(15),
             TitleTextAndButtonSA(onPressed: () {}, title: 'Just For You'),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -118,97 +162,9 @@ class AtHomeScreen extends StatelessWidget {
               ),
             ),
             const Gap(10),
-            // banner  2
-            Container(
-              width: 393,
-              height: 347,
-              decoration: BoxDecoration(
-                color: context.colorScheme.secondaryContainer,
-              ),
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Stack(
-                    children: [
-                      Image.asset(
-                        'assets/banner_library2.jpg',
-                        width: 300,
-                        height: 310,
-                        fit: BoxFit.cover,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        child: Container(
-                          width: 300,
-                          height: 50,
-                          decoration: BoxDecoration(color: Color(0xE5212020)),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "Cycling Challenge",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color.fromARGB(255, 238, 254, 98),
-                                  ),
-                                ),
 
-                                Row(
-                                  children: const [
-                                    Icon(
-                                      Icons.timer,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                    Gap(4),
-                                    Text(
-                                      "15 Minutes",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Gap(12),
-                                    Icon(
-                                      Icons.local_fire_department,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                    Gap(4),
-                                    Text(
-                                      "100 Kcal",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Icon(
-                          FontAwesomeIcons.solidStar,
-                          color: Color(0xFFE2F163),
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const Gap(15),
-            TitleTextAndButtonSA(onPressed: () {}, title: 'Articles & Tips'),
+            // 💪 Full Body Section (phần dưới giữ nguyên)
+            TitleTextAndButtonSA(onPressed: () {}, title: 'Full Body'),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -217,35 +173,16 @@ class AtHomeScreen extends StatelessWidget {
                   CardTip(
                     onTap: () {},
                     title: 'Supplement Guide...',
-                    path: 'assets/tip1.jpg',
+                    path: 'assets/fullbody1.png',
                   ),
                   CardTip(
                     onTap: () {},
-                    title: '15 Quick & Effective....',
-                    path: 'assets/tip2.jpg',
+                    title: '15 Quick & Effective',
+                    path: 'assets/fullbody2.png',
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CardTip(
-                    onTap: () {},
-                    title: 'Supplement Guide...',
-                    path: 'assets/tip3.jpg',
-                  ),
-                  CardTip(
-                    onTap: () {},
-                    title: '15 Quick & Effective....',
-                    path: 'assets/tip2.jpg',
-                  ),
-                ],
-              ),
-            ),
-            const Gap(10),
           ],
         ),
       ),

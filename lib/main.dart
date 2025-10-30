@@ -30,6 +30,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (_) => PasswordProvider()),
       ChangeNotifierProvider(create: (_) => TabProvider()),
       ChangeNotifierProvider(create: (_) => RoutesNotifier()),
+      ChangeNotifierProvider(create: (_) => GroupExerciseProvider()),
     ],
     child: GestureDetector(
       behavior: HitTestBehavior.translucent, // bắt sự kiện tap trên vùng trống

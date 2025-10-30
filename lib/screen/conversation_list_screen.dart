@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/services/chat_service.dart';
 import '../../data/models/conversation_model.dart';
@@ -92,9 +93,12 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Messages',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -119,8 +123,10 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
               // 🔍 Search bar
               Container(
                 color: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: TextField(
                   controller: _searchController,
                   readOnly: true,
@@ -165,14 +171,15 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                           itemBuilder: (context, index) {
                             final c = _conversations[index];
                             final currentId = _chatService.currentUserId;
-                            final partner =
-                                currentId == c.user1?.id ? c.user2 : c.user1;
+                            final partner = currentId == c.user1?.id
+                                ? c.user2
+                                : c.user1;
 
                             final displayName =
                                 partner?.name ?? partner?.email ?? 'User';
                             final avatarUrl =
                                 partner?.avatarUrl ??
-                                    'https://i.pravatar.cc/150?img=${index + 3}';
+                                'https://i.pravatar.cc/150?img=${index + 3}';
                             final lastMessage =
                                 c.lastMessage?.content ?? 'No messages yet';
 
@@ -182,8 +189,8 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => CustomChatScreen(
-                                        conversationId: c.id),
+                                    builder: (context) =>
+                                        CustomChatScreen(conversationId: c.id),
                                   ),
                                 );
                               },

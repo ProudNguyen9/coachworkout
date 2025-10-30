@@ -2,6 +2,7 @@
 export 'models/user_model.dart';
 export 'models/message_model.dart';
 export 'models/model_for_chatscreen.dart';
+export 'models/groupexerciseitem.dart';
 
 // Export services
 export 'services/supabase_service.dart';

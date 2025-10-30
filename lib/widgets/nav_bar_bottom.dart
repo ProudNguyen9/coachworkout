@@ -37,7 +37,7 @@ class _NavBarBottomState extends State<NavBarBottom> {
             child: GNav(
               rippleColor: colorScheme.primary.withOpacity(0.15),
               hoverColor: colorScheme.primary.withOpacity(0.05),
-              gap: 6, // giảm nhẹ gap
+              gap: 10,
               activeColor: colorScheme.primary,
               iconSize: 24,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

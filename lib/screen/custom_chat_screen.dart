@@ -1,5 +1,5 @@
 // =====================================================
-// 🧩 COACH AI CHAT SCREEN - FIX GEMINI API STABLE
+// 🧩 COACH AI CHAT SCREEN - GEMINI 2.5 FLASH FIXED
 // =====================================================
 
 import 'dart:io';
@@ -26,22 +26,21 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
   File? selectedImage;
   bool isLoading = false;
 
-  // API endpoints
+  // ==============================
+  // 🔹 API Config
+  // ==============================
   final String poseUrl = "http://192.168.2.9:8000/analyze_pose";
 
-  // Supabase config
   final String supabaseUrl = "https://zsqeewnrycesouhunxxk.supabase.co";
   final String supabaseKey =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWVld25yeWNlc291aHVueHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3Mjc2NDMsImV4cCI6MjA3NjMwMzY0M30.NT9XbVC0astMhOuqxZtqv03Nh4t3c1eV2uo6b0AY5Wg";
   final String supabaseBucket = "AIserver";
 
-  // Gemini API (tự động fallback nếu lỗi)
-  final String geminiKey = "AIzaSyD2a9ILxxmHspCw57Wrbl_DbRG5wS471wo";
-  final List<String> geminiModels = [
-    "gemini-2.0-flash-001",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
-  ];
+  // ==============================
+  // 🔹 Gemini API Config
+  // ==============================
+  final String geminiKey = "AIzaSyCf2W_uEDAajg7ZJiNjxfm-pYFJLVl-yS0";
+  final List<String> geminiModels = ["gemini-2.5-flash", "gemini-2.5-pro"];
 
   @override
   void dispose() {
@@ -50,7 +49,9 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
     super.dispose();
   }
 
-  // Gửi tin nhắn
+  // =====================================================
+  // 🔹 Gửi tin nhắn
+  // =====================================================
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
 
@@ -75,7 +76,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
 
     try {
       if (selectedImage == null) {
-        // 🧠 Gọi Gemini API khi chỉ có text
+        // 🧠 GỌI GEMINI KHI CHỈ TEXT
         setState(() {
           messages.add({
             "id": uuid.v4(),
@@ -93,12 +94,12 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
           messages.add({"id": uuid.v4(), "sender": "ai", "text": reply});
         });
       } else {
-        // 🖼 Nếu có ảnh → gọi pose API
+        // 🖼 CÓ ẢNH → GỌI POSE SERVER
         setState(() {
           messages.add({
             "id": uuid.v4(),
             "sender": "ai",
-            "text": "🧠 Đang phân tích...",
+            "text": "🧠 Đang phân tích ảnh...",
           });
         });
 
@@ -137,7 +138,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
   }
 
   // =====================================================
-  // 🔹 Gọi Gemini API với retry + fallback tự động
+  // 🔹 Gọi Gemini API (retry + fallback)
   // =====================================================
   Future<String> _callGeminiAPIWithRetry(String prompt) async {
     for (final model in geminiModels) {
@@ -146,23 +147,47 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
         if (result.isNotEmpty) return result;
       } catch (e) {
         debugPrint("⚠️ Lỗi model $model: $e");
-        if (e.toString().contains("429") || e.toString().contains("503")) {
-          await Future.delayed(const Duration(seconds: 2));
-          continue; // thử model khác
+        if (e.toString().contains("404") ||
+            e.toString().contains("429") ||
+            e.toString().contains("503")) {
+          await Future.delayed(const Duration(seconds: 1));
+          continue;
         } else {
           rethrow;
         }
       }
     }
-    throw Exception("Tất cả model Gemini đều đang quá tải, thử lại sau!");
+    throw Exception("🚫 Tất cả model Gemini đều lỗi hoặc quá tải!");
   }
 
   // =====================================================
-  // 🔸 Hàm gọi Gemini API trực tiếp
+  // 🔸 Gọi Gemini API trực tiếp (model 2.5)
   // =====================================================
   Future<String> _callGeminiAPI(String prompt, String model) async {
     final url =
-        "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$geminiKey";
+        "https://generativelanguage.googleapis.com/v1/models/$model:generateContent?key=$geminiKey";
+
+    // ✅ Giới hạn chủ đề & rút gọn câu trả lời
+    final wrappedPrompt =
+        '''
+Bạn là một huấn luyện viên cá nhân (Coach AI).
+Chỉ trả lời các câu hỏi LIÊN QUAN đến:
+- Gym, thể hình, fitness
+- Yoga, pilates, giãn cơ, thiền
+- Dinh dưỡng, chế độ ăn, meal plan
+- Phục hồi chấn thương, đau cơ, phục hồi sau tập
+- Giảm cân, tăng cơ, cardio, sức bền
+
+❌ Nếu người dùng hỏi ngoài các chủ đề trên, hãy trả lời ngắn gọn:
+"Tôi chỉ hỗ trợ về gym, fitness, yoga và dinh dưỡng nhé 💪"
+
+Yêu cầu:
+- Trả lời NGẮN GỌN, đúng trọng tâm 
+- Không dùng emoji trừ khi thật cần thiết.
+- Không lan man.
+
+Câu hỏi người dùng: $prompt
+''';
 
     final response = await http.post(
       Uri.parse(url),
@@ -171,7 +196,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
         "contents": [
           {
             "parts": [
-              {"text": prompt},
+              {"text": wrappedPrompt},
             ],
           },
         ],
@@ -198,7 +223,6 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
     final ext = p.extension(file.path).toLowerCase();
     String mimeType = "image/jpeg";
     if (ext == ".png") mimeType = "image/png";
-    if (ext == ".heic") mimeType = "image/heic";
 
     final url = Uri.parse(
       "$supabaseUrl/storage/v1/object/$supabaseBucket/$fileName",
@@ -222,7 +246,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
   }
 
   // =====================================================
-  // 🔹 Gọi Pose API
+  // 🔹 Gọi Pose Server
   // =====================================================
   Future<Map<String, dynamic>> _callPoseAPI(
     String imageUrl,
@@ -271,37 +295,14 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
       MaterialPageRoute(
         builder: (_) => Scaffold(
           backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-              Center(
-                child: InteractiveViewer(
-                  minScale: 0.5,
-                  maxScale: 5.0,
-                  child: imageUrl.startsWith("http")
-                      ? Image.network(imageUrl)
-                      : Image.file(File(imageUrl)),
-                ),
-              ),
-              Positioned(
-                top: 40,
-                right: 20,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          body: Center(
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 5.0,
+              child: imageUrl.startsWith("http")
+                  ? Image.network(imageUrl)
+                  : Image.file(File(imageUrl)),
+            ),
           ),
         ),
       ),
@@ -383,7 +384,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
   }
 
   // =====================================================
-  // 🧠 Build chính
+  // 🧠 Build UI
   // =====================================================
   @override
   Widget build(BuildContext context) {
@@ -437,17 +438,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
                 children: [
                   Image.file(selectedImage!, height: 120),
                   if (isLoading)
-                    const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white),
-                        SizedBox(height: 10),
-                        Text(
-                          "Đang phân tích...",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ],
-                    ),
+                    const CircularProgressIndicator(color: Colors.white),
                   if (!isLoading)
                     Positioned(
                       top: 4,

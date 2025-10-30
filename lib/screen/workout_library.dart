@@ -30,19 +30,30 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
       length: 3,
       child: Scaffold(
         backgroundColor: context.colorScheme.surface,
-        bottomNavigationBar: const NavBarBottom(),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(25),
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Workout Library',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
                 ),
-              ),
+                Gap(30),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Workout Library',
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             TabBar(
               overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -65,43 +76,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
             ),
           ],
         ),
-        floatingActionButton: AnimatedFloatingActionButton(
-          key: fabKey,
-
-          fabButtons: <Widget>[_searchFab(context), _addFab(context)],
-          colorStartAnimation: const Color(0xFF00B5D8),
-          colorEndAnimation: Colors.cyan,
-          animatedIconData: AnimatedIcons.menu_close,
-        ),
       ),
-    );
-  }
-
-  Widget _searchFab(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: "btnSearch",
-      onPressed: () {
-        showSearch(context: context, delegate: MySearchDelegate(data));
-      },
-      tooltip: "Search",
-      backgroundColor: const Color(0xFF00B5D8),
-      elevation: 4,
-      child: const Icon(Icons.search, size: 20, color: Colors.white),
-    );
-  }
-
-  Widget _addFab(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: "btnAdd",
-      onPressed: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Add new workout")));
-      },
-      tooltip: "Add Workout",
-      backgroundColor: const Color(0xFF00B5D8),
-      elevation: 4,
-      child: const Icon(Icons.add, size: 26, color: Colors.white),
     );
   }
 }

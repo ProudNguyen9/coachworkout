@@ -69,6 +69,9 @@ dependencies:
   like_button: ^2.1.0
   video_thumbnail: ^0.5.6
   flutter_cache_manager: ^3.4.1
+  confetti: ^0.8.0
+  syncfusion_flutter_datepicker: ^31.1.19
+  jitsi_meet_flutter_sdk: ^11.6.0
 flutter pub add chatview  permission_handler: ^12.0.1
  
  

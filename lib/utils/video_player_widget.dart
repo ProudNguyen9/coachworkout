@@ -8,7 +8,8 @@ class CachedVideoPlayerWidget extends StatefulWidget {
   const CachedVideoPlayerWidget({super.key, required this.videoUrl});
 
   @override
-  State<CachedVideoPlayerWidget> createState() => _CachedVideoPlayerWidgetState();
+  State<CachedVideoPlayerWidget> createState() =>
+      _CachedVideoPlayerWidgetState();
 }
 
 class _CachedVideoPlayerWidgetState extends State<CachedVideoPlayerWidget> {

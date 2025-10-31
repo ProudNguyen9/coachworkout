@@ -286,6 +286,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                     Navigator.pop(context);
                     final media = await picker.pickMedia();
                     if (media != null) {
+                      // ignore: unused_local_variable
                       final type = media.path.endsWith(".mp4")
                           ? MessageType.video
                           : MessageType.image;
@@ -589,6 +590,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     return ['.mp4', '.mov', '.avi', '.mkv', '.webm'].contains(ext);
   }
 
+  // ignore: unused_element
   bool _isAudioFile(String path) {
     final ext = p.extension(path).toLowerCase();
     return ['.mp3', '.wav', '.aac', '.m4a', '.flac'].contains(ext);

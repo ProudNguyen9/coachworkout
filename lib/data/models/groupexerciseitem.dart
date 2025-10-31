@@ -1,6 +1,6 @@
 class GroupExerciseItem {
   final String itemId;
-  final int orderNumber;
+  final int ? orderNumber;
   final int sets;
   final int repetitions;
   final int durationSeconds;

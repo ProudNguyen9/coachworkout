@@ -21,6 +21,7 @@ class _AtHomeScreenState extends State<AtHomeScreen> {
 
     /// 🔹 Gọi load dữ liệu Supabase, chỉ chạy 1 lần duy nhất
     Future.microtask(() {
+      // ignore: use_build_context_synchronously
       final provider = context.read<GroupExerciseProvider>();
       provider.fetchBeginnerExercises(limitCount: 3);
     });
@@ -98,9 +99,9 @@ class _AtHomeScreenState extends State<AtHomeScreen> {
                 itemBuilder: (context, index) {
                   final workout = beginnerList[index];
                   return ItemListBeginner(
-                    path: workout.urlThumbnail ?? '',
+                    path: workout.urlThumbnail,
                     title: workout.title,
-                    description: workout.description ?? '',
+                    description: workout.description,
                     // times: workout.duration ?? '',
                     ontap: () {
                       print("heheh ${workout.id}");

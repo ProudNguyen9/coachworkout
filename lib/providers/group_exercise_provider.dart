@@ -95,41 +95,106 @@ class GroupExerciseProvider with ChangeNotifier {
     _hasLoadedBeginner = false;
     notifyListeners();
   }
-   String getTotaltime(String groupId) {
-  final data = _groupItemsCache[groupId];
-  if (data == null || data.isEmpty) return "0 phút";
 
-  // Tính tổng thời gian (giây) và tổng calories
-  int totalSeconds = 0;
+  String totaltime(String groupId) {
+    final data = _groupItemsCache[groupId];
+    if (data == null || data.isEmpty) return "0 phút";
+
+    // Tính tổng thời gian (giây) và tổng calories
+    int totalSeconds = 0;
+
+    for (var item in data) {
+      // mỗi bài tập: (reps * sets * durationSeconds)
+      totalSeconds += (item.repetitions * item.sets * item.durationSeconds);
+    }
+
+    // Đổi sang phút (làm tròn)
+    final totalMinutes = (totalSeconds / 60).ceil();
+
+    return "$totalMinutes";
+  }
+
+  String getTotalcalo(String groupId) {
+    final data = _groupItemsCache[groupId];
+    if (data == null || data.isEmpty) return " 0 kcal";
+
+    double totalCalories = 0;
+
+    for (var item in data) {
+      // calories cũng tương tự: (caloPerRep * reps * sets)
+      totalCalories +=
+          (item.caloriesPerRep ?? 0) * item.repetitions * item.sets;
+    }
+
+    return "${totalCalories.round()}";
+  }
+  /// 🔹 Chèn bài "nghỉ" động giữa các bài tập
+  ///  - Nghỉ 20s giữa các bài tập
+  ///  - Nghỉ 15s giữa các set (nếu cần)
+  List<GroupExerciseItem> insertRestItems(List<GroupExerciseItem> originalList) {
+    final List<GroupExerciseItem> result = [];
+
+    for (int i = 0; i < originalList.length; i++) {
+      final exercise = originalList[i];
+
+      // 🔹 Thêm từng set, sau mỗi set (trừ set cuối) có bài nghỉ 15s
+      for (int s = 0; s < exercise.sets; s++) {
+        result.add(
+          GroupExerciseItem(
+            itemId: "${exercise.itemId}_set${s + 1}",
+            orderNumber: exercise.orderNumber,
+            sets: exercise.sets,
+            repetitions: exercise.repetitions,
+            durationSeconds: exercise.durationSeconds,
+            exerciseId: exercise.exerciseId,
+            exerciseName: "${exercise.exerciseName} (Set ${s + 1})",
+            description: exercise.description,
+            caloriesPerRep: exercise.caloriesPerRep,
+            mediaUrl: exercise.mediaUrl,
+          ),
+        );
+
+        // 🔹 Nghỉ giữa các set
+        if (s < exercise.sets - 1) {
+          result.add(
+            GroupExerciseItem(
+              itemId: "rest_set_${exercise.itemId}_$s",
+              orderNumber: null,
+              sets: 0,
+              repetitions: 0,
+              durationSeconds: 15, // nghỉ giữa các set
+              exerciseId: "rest",
+              exerciseName: "Rest Between Sets",
+              description: "Take a 15s break before next set",
+              caloriesPerRep: 0,
+              mediaUrl: null,
+            ),
+          );
+        }
+      }
+
+      // 🔹 Nghỉ giữa các bài
+      if (i < originalList.length - 1) {
+        result.add(
+          GroupExerciseItem(
+            itemId: "rest_exercise_$i",
+            orderNumber: null,
+            sets: 0,
+            repetitions: 0,
+            durationSeconds: 20, // nghỉ giữa bài tập
+            exerciseId: "rest",
+            exerciseName: "Rest Between Exercises",
+            description: "Take a 20s break before next exercise",
+            caloriesPerRep: 0,
+            mediaUrl: null,
+          ),
+        );
+      }
+    }
+
+    return result;
+  }
+
   
-
-  for (var item in data) {
-    // mỗi bài tập: (reps * sets * durationSeconds)
-    totalSeconds += (item.repetitions * item.sets * item.durationSeconds);
-
-    
-  }
-
-  // Đổi sang phút (làm tròn)
-  final totalMinutes = (totalSeconds / 60).ceil();
-
-  return "$totalMinutes";
-}
-   String getTotalcalo(String groupId) {
-  final data = _groupItemsCache[groupId];
-  if (data == null || data.isEmpty) return " 0 kcal";
-
-  double totalCalories = 0;
-
-  for (var item in data) {
-
-    // calories cũng tương tự: (caloPerRep * reps * sets)
-    totalCalories +=
-        (item.caloriesPerRep ?? 0) * item.repetitions * item.sets;
-  }
-
- 
-  return "$totalCalories";
-}
 
 }

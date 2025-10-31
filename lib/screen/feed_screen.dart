@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,8 +15,8 @@ class _FeedScreenState extends State<FeedScreen> {
   final List<Map<String, dynamic>> posts = [
     {
       'id': 1,
-      'user': 'Nguyen Van A',
-      'avatar': 'https://i.pravatar.cc/150?img=3',
+      'user': 'Nguyen Hung',
+      'avatar': 'https://i.pravatar.cc/150?img=10',
       'content': 'Morning workout done 💪',
       'media':
           'https://images.unsplash.com/photo-1554284126-aa88f22d8b74?w=800',
@@ -29,6 +30,16 @@ class _FeedScreenState extends State<FeedScreen> {
   ];
 
   final ImagePicker picker = ImagePicker();
+
+  /// ✅ Helper tránh lỗi null
+  String safeUrl(String? url, {bool isAvatar = false}) {
+    if (url == null || url.isEmpty) {
+      return isAvatar
+          ? 'https://i.pravatar.cc/150?img=1'
+          : 'https://via.placeholder.com/300x200.png?text=No+Image';
+    }
+    return url;
+  }
 
   void toggleLike(int index) {
     setState(() {
@@ -61,14 +72,13 @@ class _FeedScreenState extends State<FeedScreen> {
               if (textController.text.trim().isEmpty && pickedFile == null)
                 return;
               setModalState(() => isLoading = true);
-              await Future.delayed(
-                const Duration(milliseconds: 400),
-              ); // giả lập delay
+              await Future.delayed(const Duration(milliseconds: 400));
               setState(() {
                 posts.insert(0, {
                   'id': DateTime.now().millisecondsSinceEpoch,
                   'user': 'You',
-                  'avatar': 'https://i.pravatar.cc/150?img=10',
+                  'avatar':
+                      'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/images/10.jpg',
                   'content': textController.text.trim(),
                   'media': pickedFile?.path ?? '',
                   'likes': 0,
@@ -108,8 +118,8 @@ class _FeedScreenState extends State<FeedScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: Colors.blueAccent,
+                          borderSide: BorderSide(
+                            color: context.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -134,7 +144,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           icon: const Icon(FontAwesomeIcons.image, size: 16),
                           label: const Text("Gallery"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
+                            backgroundColor: context.colorScheme.primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -150,7 +160,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           icon: const Icon(FontAwesomeIcons.camera, size: 16),
                           label: const Text("Camera"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
+                            backgroundColor: context.colorScheme.primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -214,9 +224,10 @@ class _FeedScreenState extends State<FeedScreen> {
       backgroundColor: Colors.transparent,
       context: context,
       builder: (context) {
-        // ✅ fix cast lỗi
-        final comments = (posts[index]['comments'] as List)
-            .cast<Map<String, dynamic>>();
+        final comments =
+            (posts[index]['comments'] as List?)?.cast<Map<String, dynamic>>() ??
+            [];
+        posts[index]['comments'] = comments;
 
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -226,7 +237,8 @@ class _FeedScreenState extends State<FeedScreen> {
                 'user': 'You',
                 'text': controller.text.trim(),
                 'time': 'Just now',
-                'avatar': 'https://i.pravatar.cc/150?img=10',
+                'avatar':
+                    'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/images/10.jpg',
               };
               setModalState(() => comments.add(newCmt));
               setState(() {});
@@ -259,7 +271,9 @@ class _FeedScreenState extends State<FeedScreen> {
                         final cmt = comments[i];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: NetworkImage(cmt['avatar']),
+                            backgroundImage: NetworkImage(
+                              safeUrl(cmt['avatar'], isAvatar: true),
+                            ),
                           ),
                           title: Text(
                             cmt['user'],
@@ -339,7 +353,6 @@ class _FeedScreenState extends State<FeedScreen> {
             letterSpacing: 0.3,
           ),
         ),
-        // Nút back
         leadingWidth: 52,
         leading: Padding(
           padding: const EdgeInsets.only(left: 8),
@@ -372,7 +385,6 @@ class _FeedScreenState extends State<FeedScreen> {
           const SizedBox(width: 12),
         ],
       ),
-
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: posts.length,
@@ -396,17 +408,18 @@ class _FeedScreenState extends State<FeedScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundImage: NetworkImage(post['avatar']),
+                        backgroundImage: NetworkImage(
+                          safeUrl(post['avatar'], isAvatar: true),
+                        ),
                         radius: 22,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          post['user'],
+                          post['user'] ?? 'Unknown',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -417,25 +430,22 @@ class _FeedScreenState extends State<FeedScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
-
-                  // Content
                   Text(
-                    post['content'],
+                    post['content'] ?? '',
                     style: const TextStyle(fontSize: 15, height: 1.4),
                   ),
                   const SizedBox(height: 10),
-
-                  // Media
-                  if (post['media'].isNotEmpty)
+                  if ((post['media'] ?? '').isNotEmpty)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: post['media'].startsWith('http')
-                          ? Image.network(post['media'], fit: BoxFit.cover)
+                      child: safeUrl(post['media']).startsWith('http')
+                          ? Image.network(
+                              safeUrl(post['media']),
+                              fit: BoxFit.cover,
+                            )
                           : Image.file(File(post['media']), fit: BoxFit.cover),
                     ),
                   const SizedBox(height: 10),
-
-                  // Like & Comment
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -469,7 +479,7 @@ class _FeedScreenState extends State<FeedScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              "${post['comments'].length} comments",
+                              "${(post['comments'] as List?)?.length ?? 0} comments",
                               style: TextStyle(color: Colors.grey[700]),
                             ),
                           ],

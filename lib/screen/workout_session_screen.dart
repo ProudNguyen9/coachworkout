@@ -1,104 +1,146 @@
 import 'dart:async';
+import 'package:coach_workout/data/models/groupexerciseitem.dart';
+import 'package:coach_workout/providers/group_exercise_provider.dart';
 import 'package:coach_workout/screen/home_screen.dart';
+import 'package:coach_workout/screen/workout_library.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
+import 'animated_countdown.dart';
 
 class WorkoutSession extends StatefulWidget {
-  static WorkoutSession builder(BuildContext context, GoRouterState state) =>
-      const WorkoutSession();
+  final String groupId;
 
-  const WorkoutSession({super.key});
+  const WorkoutSession({super.key, required this.groupId});
+
+  static WorkoutSession builder(BuildContext context, GoRouterState state) {
+    final groupId = state.uri.queryParameters['groupId'] ?? '';
+    return WorkoutSession(groupId: groupId);
+  }
 
   @override
   State<WorkoutSession> createState() => _WorkoutSessionState();
 }
 
 class _WorkoutSessionState extends State<WorkoutSession> {
-  int totalSeconds = 30;
-  int remainingSeconds = 30;
+  bool showCountdown = true;
   bool isPaused = false;
+  int currentIndex = 0;
   double progress = 0.0;
+  int remainingSeconds = 0;
   Timer? timer;
 
-  // 🔹 Giả lập thông tin bài tập
-  final int currentExercise = 1;
-  final int totalExercises = 10;
-  final String exerciseName = "Jumping Jacks";
+  VideoPlayerController? _controller;
+  VideoPlayerController? _nextController;
 
-  // 🔹 Danh sách video luân phiên
-  final List<String> videoUrls = [
-    "https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/AIserver/pose_video_024031dd3b444bfa8dbb35d155c85eb2.mp4",
-    "https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/voice/The_same_man_202510250056_tsvgg.mp4",
-  ];
-
-  int currentVideoIndex = 0;
-  late VideoPlayerController _controller;
+  List<GroupExerciseItem> exercises = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeVideo();
-    _startTimer();
+    _loadGroupData();
   }
 
-  // 🔹 Khởi tạo video
-  void _initializeVideo() {
-    _controller =
-        VideoPlayerController.networkUrl(
-            Uri.parse(videoUrls[currentVideoIndex]),
-          )
-          ..setLooping(false)
-          ..initialize().then((_) {
-            setState(() {});
-            _controller.play();
-          });
+  Future<void> _loadGroupData() async {
+    final provider = Provider.of<GroupExerciseProvider>(context, listen: false);
 
-    // Khi video kết thúc → tự đổi sang video kế tiếp
-    _controller.addListener(() {
-      if (_controller.value.position >= _controller.value.duration &&
-          !_controller.value.isPlaying) {
-        _switchVideo();
+    await provider.fetchItemGroupExercises(widget.groupId);
+    final list = provider.getItemList(widget.groupId);
+    final withRest = provider.insertRestItems(list);
+
+    if (mounted) {
+      setState(() {
+        exercises = withRest;
+      });
+    }
+  }
+
+  Future<void> _initializeVideo() async {
+    final current = exercises[currentIndex];
+    remainingSeconds = current.durationSeconds;
+
+    if (current.exerciseId == "rest") {
+      _controller = null;
+    } else {
+      _controller =
+          VideoPlayerController.networkUrl(Uri.parse(current.mediaUrl ?? ''))
+            ..setLooping(true)
+            ..initialize().then((_) {
+              setState(() {});
+            });
+    }
+
+    // Cache video kế tiếp
+    if (currentIndex + 1 < exercises.length) {
+      final next = exercises[currentIndex + 1];
+      if (next.exerciseId != "rest" && next.mediaUrl != null) {
+        _nextController = VideoPlayerController.networkUrl(
+          Uri.parse(next.mediaUrl!),
+        );
+        await _nextController!.initialize();
       }
-    });
+    }
   }
 
-  // 🔹 Chuyển video kế tiếp
-  void _switchVideo() async {
-    currentVideoIndex = (currentVideoIndex + 1) % videoUrls.length;
-    await _controller.pause();
-    await _controller.dispose();
-    _initializeVideo();
-  }
-
-  // 🔹 Đếm ngược
   void _startTimer() {
+    timer?.cancel();
+    final current = exercises[currentIndex];
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!isPaused) {
+      if (!isPaused && mounted) {
         if (remainingSeconds > 0) {
           setState(() {
             remainingSeconds--;
-            progress = (totalSeconds - remainingSeconds) / totalSeconds;
+            progress =
+                (current.durationSeconds - remainingSeconds) /
+                current.durationSeconds;
           });
         } else {
           t.cancel();
-          _controller.pause();
-          context.go('/next-exercise');
+          _switchToNext();
         }
       }
     });
   }
 
-  // 🔹 Tạm dừng / tiếp tục
-  void togglePause() {
+  Future<void> _switchToNext() async {
+    timer?.cancel();
+    await _controller?.pause();
+    await _controller?.dispose();
+
+    if (currentIndex + 1 >= exercises.length) {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const CelebrationScreen()),
+      );
+      return;
+    }
+
+    setState(() {
+      currentIndex++;
+      progress = 0.0;
+      remainingSeconds = exercises[currentIndex].durationSeconds;
+    });
+
+    await _initializeVideo();
+    if (exercises[currentIndex].exerciseId != "rest") {
+      _controller?.play();
+    }
+
+    _startTimer();
+  }
+
+  void _togglePause() {
     setState(() {
       isPaused = !isPaused;
       if (isPaused) {
-        _controller.pause();
+        _controller?.pause();
       } else {
-        _controller.play();
+        _controller?.play();
       }
     });
   }
@@ -106,157 +148,191 @@ class _WorkoutSessionState extends State<WorkoutSession> {
   @override
   void dispose() {
     timer?.cancel();
-    _controller.dispose();
+    _controller?.dispose();
+    _nextController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final current = exercises[currentIndex];
     final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => context.pop(),
-        ),
-        centerTitle: true,
-        title: Text(
-          "Exercise $currentExercise/$totalExercises",
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Colors.black87,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close_rounded, color: Colors.black87),
-            onPressed: () {
-              _showQuitBottomSheet(context);
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // 🔹 Video bài tập
-            Expanded(
-              flex: 4,
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: _controller.value.isInitialized
-                      ? AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        )
-                      : const Center(child: CircularProgressIndicator()),
+      appBar: !showCountdown
+          ? AppBar(
+              title: Text(
+                current.exerciseId == "rest"
+                    ? "Rest Time 😌"
+                    : "You’re doing great! 💪🔥",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: primary,
                 ),
               ),
-            ),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                onPressed: () => _showQuitBottomSheet(context),
+              ),
+            )
+          : null,
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          if (showCountdown)
+            AnimatedCountdown(
+              onFinish: () async {
+                // countdown xong mới chạy tiếp
+                setState(() => showCountdown = false);
 
-            // 🔹 Thông tin bài tập + đồng hồ
-            Expanded(
-              flex: 4,
+                if (exercises.isEmpty) {
+                  await _loadGroupData(); // đảm bảo có dữ liệu
+                }
+
+                if (exercises.isNotEmpty) {
+                  await _initializeVideo();
+                  if (exercises[currentIndex].exerciseId != "rest") {
+                    _controller?.play();
+                  }
+                  _startTimer();
+                }
+              },
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Keep Going!",
-                    style: GoogleFonts.poppins(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: primary,
+                  // 🔹 Video hoặc màn nghỉ
+                  Expanded(
+                    flex: 4,
+                    child: Center(
+                      child: current.exerciseId == "rest"
+                          ? Text(
+                              "Rest Time 😴\nTake a deep breath!",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: _controller?.value.isInitialized ?? false
+                                  ? AspectRatio(
+                                      aspectRatio:
+                                          _controller!.value.aspectRatio,
+                                      child: VideoPlayer(_controller!),
+                                    )
+                                  : const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                            ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    exerciseName,
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0, end: progress),
-                    duration: const Duration(milliseconds: 500),
-                    builder: (context, value, _) => CircularPercentIndicator(
-                      radius: 80.0,
-                      lineWidth: 10.0,
-                      percent: value.clamp(0.0, 1.0),
-                      center: Text(
-                        "$remainingSeconds",
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+
+                  // 🔹 Info + Timer
+                  Expanded(
+                    flex: 4,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          current.exerciseName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: primary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
+                        const SizedBox(height: 20),
+                        CircularPercentIndicator(
+                          radius: 80.0,
+                          lineWidth: 10.0,
+                          percent: progress.clamp(0.0, 1.0),
+                          center: Text(
+                            "$remainingSeconds",
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          progressColor: primary,
+                          backgroundColor: primary.withOpacity(0.2),
+                          circularStrokeCap: CircularStrokeCap.round,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 🔹 Controls
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _controlButton(
+                            Icons.skip_previous_rounded,
+                            "Previous",
+                            _previousVideo,
+                            primary,
+                          ),
+                          _pauseButton(primary),
+                          _controlButton(
+                            Icons.skip_next_rounded,
+                            "Next",
+                            _switchToNext,
+                            primary,
+                          ),
+                        ],
                       ),
-                      progressColor: primary,
-                      backgroundColor: primary.withOpacity(0.2),
-                      circularStrokeCap: CircularStrokeCap.round,
                     ),
                   ),
                 ],
               ),
             ),
-
-            // 🔹 Nút điều khiển
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _controlButton(Icons.skip_previous_rounded, "Previous", () {
-                      // TODO: Quay lại bài trước
-                    }, primary),
-                    _pauseButton(primary),
-                    _controlButton(Icons.skip_next_rounded, "Skip", () {
-                      timer?.cancel();
-                      _controller.pause();
-                      context.go('/next-exercise');
-                    }, primary),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
-  // 🔹 Nút pause/play giữa
-  Widget _pauseButton(Color primary) {
-    return GestureDetector(
-      onTap: togglePause,
-      child: Container(
-        height: 70,
-        width: 70,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: primary.withOpacity(0.1),
-        ),
-        child: Icon(
-          isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-          color: primary,
-          size: 38,
-        ),
-      ),
-    );
+  Future<void> _previousVideo() async {
+    if (currentIndex == 0) return;
+    await _controller?.pause();
+    await _controller?.dispose();
+
+    setState(() => currentIndex--);
+    await _initializeVideo();
+    _controller?.play();
+    _startTimer();
   }
 
-  // 🔹 Nút Previous / Skip
+  Widget _pauseButton(Color primary) => GestureDetector(
+    onTap: _togglePause,
+    child: Container(
+      height: 70,
+      width: 70,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: primary.withOpacity(0.1),
+      ),
+      child: Icon(
+        isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+        color: primary,
+        size: 38,
+      ),
+    ),
+  );
+
   Widget _controlButton(
     IconData icon,
     String label,
@@ -329,7 +405,9 @@ void _showQuitBottomSheet(BuildContext context) {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const WorkoutLibraryScreen(),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -376,4 +454,124 @@ void _showQuitBottomSheet(BuildContext context) {
       );
     },
   );
+}
+
+// class celebrate
+class CelebrationScreen extends StatefulWidget {
+  const CelebrationScreen({super.key});
+
+  @override
+  State<CelebrationScreen> createState() => _CelebrationScreenState();
+}
+
+class _CelebrationScreenState extends State<CelebrationScreen> {
+  late ConfettiController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ConfettiController(duration: const Duration(seconds: 4));
+    _controller.play();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        alignment: const Alignment(0, -0.5),
+        children: [
+          // 🎊 Hiệu ứng pháo giấy
+          ConfettiWidget(
+            confettiController: _controller,
+            blastDirectionality: BlastDirectionality.explosive,
+            emissionFrequency: 0.09,
+            numberOfParticles: 30,
+            shouldLoop: true,
+            colors: const [
+              Colors.red,
+              Colors.blue,
+              Colors.green,
+              Colors.orange,
+              Colors.purple,
+              Colors.yellow,
+            ],
+          ),
+
+          // 🏆 Nội dung chính
+          Align(
+            alignment: Alignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.emoji_events_rounded,
+                  color: Colors.amber,
+                  size: 90,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Workout Completed!",
+                  style: GoogleFonts.poppins(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "You did amazing 💪🔥",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                SizedBox(
+                  width: 220,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.library_books_rounded,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      "Back to Home",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

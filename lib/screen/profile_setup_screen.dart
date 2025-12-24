@@ -3,6 +3,7 @@ import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   static ProfileSetupScreen builder(
@@ -29,10 +30,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Gap(40),
-              const Center(
+              Center(
                 child: Text(
                   "Personal Information",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               const Gap(10),

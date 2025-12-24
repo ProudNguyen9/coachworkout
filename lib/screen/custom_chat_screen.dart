@@ -39,7 +39,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
   // ==============================
   // 🔹 Gemini API Config
   // ==============================
-  final String geminiKey = "AIzaSyCf2W_uEDAajg7ZJiNjxfm-pYFJLVl-yS0";
+  final String geminiKey = "AIzaSyD2a9ILxxmHspCw57Wrbl_DbRG5wS471wo";
   final List<String> geminiModels = ["gemini-2.5-flash", "gemini-2.5-pro"];
 
   @override
@@ -165,7 +165,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI> {
   // =====================================================
   Future<String> _callGeminiAPI(String prompt, String model) async {
     final url =
-        "https://generativelanguage.googleapis.com/v1/models/$model:generateContent?key=$geminiKey";
+        "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$geminiKey";
 
     // ✅ Giới hạn chủ đề & rút gọn câu trả lời
     final wrappedPrompt =
@@ -295,14 +295,31 @@ Câu hỏi người dùng: $prompt
       MaterialPageRoute(
         builder: (_) => Scaffold(
           backgroundColor: Colors.black,
-          body: Center(
-            child: InteractiveViewer(
-              minScale: 0.5,
-              maxScale: 5.0,
-              child: imageUrl.startsWith("http")
-                  ? Image.network(imageUrl)
-                  : Image.file(File(imageUrl)),
-            ),
+          body: Stack(
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 5.0,
+                  child: imageUrl.startsWith("http")
+                      ? Image.network(imageUrl)
+                      : Image.file(File(imageUrl)),
+                ),
+              ),
+              // 🔹 Nút thoát (X)
+              Positioned(
+                top: 40,
+                right: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.black54,
+                    child: Icon(Icons.close, color: Colors.white, size: 24),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

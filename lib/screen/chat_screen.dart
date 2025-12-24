@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:coach_workout/data/models/model_for_chatscreen.dart';
+import 'package:coach_workout/data/models/user_model.dart';
 import 'package:coach_workout/data/services/chat_service.dart';
+import 'package:coach_workout/screen/daily_call_screen.dart';
 import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +39,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
   final uuid = Uuid();
   final Color primaryColor = const Color(0xFF00B5D8);
   File? _pendingMedia;
+
   // 🆕 reply logic
   MessageModel_chatscreen? _replyingTo;
 
@@ -102,6 +105,45 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
     }
   }
 
+  //call
+  Future<void> _startCall({
+    required ChatService chatService,
+    required String conversationId,
+    required UserModel_chatscreen me,
+  }) async {
+    try {
+      // 1️⃣ Tạo callId duy nhất
+      final callId =
+          "${conversationId}_${DateTime.now().millisecondsSinceEpoch}";
+
+      // 2️⃣ Gửi tin nhắn chứa luôn callId
+      final callMessage = MessageModel_chatscreen(
+        id: uuid.v4(),
+        sentBy: me.id,
+        text: "📞 Cuộc gọi video đang được khởi tạo... | CALL_ID:$callId",
+        createdAt: DateTime.now(),
+      );
+
+      await chatService.sendMessage(
+        msg: callMessage,
+        conversationId: conversationId,
+      );
+
+      // 3️⃣ Mở màn hình gọi video
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => VideoCallScreen(userId: me.id, callId: callId),
+        ),
+      );
+    } catch (e) {
+      debugPrint("❌ Lỗi khi khởi tạo call: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể bắt đầu cuộc gọi')),
+      );
+    }
+  }
+
+  //call
   // load ban dau
   Future<void> _loadMessages() async {
     try {
@@ -330,6 +372,244 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
 
   // HIỂN THỊ TIN NHẮN
 
+  // Widget _buildMessage(MessageModel_chatscreen msg) {
+  //   final isMine = msg.sentBy == me!.id;
+  //   final bgColor = isMine ? primaryColor : Colors.grey.shade200;
+  //   final textColor = isMine ? Colors.white : Colors.black87;
+
+  //   final hasMedia = msg.mediaPath != null && msg.mediaPath!.isNotEmpty;
+  //   final hasText = msg.text != null && msg.text!.isNotEmpty;
+
+  //   // 🔍 Lookup tin nhắn được reply dựa vào replyToId
+  //   final MessageModel_chatscreen? repliedMsg = (msg.replyToId != null)
+  //       ? (_messages.where((m) => m.id == msg.replyToId).isNotEmpty
+  //             ? _messages.firstWhere((m) => m.id == msg.replyToId)
+  //             : null)
+  //       : null;
+
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //     child: Column(
+  //       crossAxisAlignment: isMine
+  //           ? CrossAxisAlignment.end
+  //           : CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: isMine
+  //               ? MainAxisAlignment.end
+  //               : MainAxisAlignment.start,
+  //           crossAxisAlignment: CrossAxisAlignment.center,
+  //           children: [
+  //             if (!isMine)
+  //               CircleAvatar(
+  //                 backgroundImage: NetworkImage(other?.avatarUrl ?? ''),
+  //                 radius: 14,
+  //               ),
+  //             if (!isMine) const SizedBox(width: 6),
+
+  //             // 📦 Bong bóng tin nhắn
+  //             Flexible(
+  //               child: Row(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 crossAxisAlignment: CrossAxisAlignment.end,
+  //                 children: [
+  //                   // 🆕 Nút reply
+  //                   IconButton(
+  //                     icon: const Icon(
+  //                       Icons.reply,
+  //                       size: 18,
+  //                       color: Colors.grey,
+  //                     ),
+  //                     padding: EdgeInsets.zero,
+  //                     constraints: const BoxConstraints(),
+  //                     onPressed: () => setState(() => _replyingTo = msg),
+  //                   ),
+
+  //                   Flexible(
+  //                     child: Column(
+  //                       crossAxisAlignment: isMine
+  //                           ? CrossAxisAlignment.end
+  //                           : CrossAxisAlignment.start,
+  //                       children: [
+  //                         // 🔁 Reply preview (tap để scroll)
+  //                         if (repliedMsg != null)
+  //                           GestureDetector(
+  //                             onTap: () => _scrollToMessage(repliedMsg.id),
+  //                             child: Container(
+  //                               padding: const EdgeInsets.all(6),
+  //                               margin: const EdgeInsets.only(bottom: 4),
+  //                               decoration: BoxDecoration(
+  //                                 color: Color(0xFFE6F9FC),
+  //                                 borderRadius: BorderRadius.circular(21),
+  //                               ),
+  //                               child: Row(
+  //                                 mainAxisSize: MainAxisSize.min,
+  //                                 crossAxisAlignment: CrossAxisAlignment.center,
+  //                                 children: [
+  //                                   const SizedBox(width: 6),
+
+  //                                   // 📸 Thumbnail nếu reply là media
+  //                                   if (repliedMsg.mediaPath != null &&
+  //                                       repliedMsg.mediaPath!.isNotEmpty)
+  //                                     ClipRRect(
+  //                                       borderRadius: BorderRadius.circular(9),
+  //                                       child: SizedBox(
+  //                                         width: 50,
+  //                                         height: 50,
+  //                                         child:
+  //                                             repliedMsg.mediaPath!.endsWith(
+  //                                               '.mp4',
+  //                                             )
+  //                                             ? const Icon(
+  //                                                 FontAwesomeIcons.video,
+  //                                                 size: 20,
+  //                                                 color: Color(0xFFFFA726),
+  //                                               )
+  //                                             : (repliedMsg.mediaPath!
+  //                                                       .startsWith('http')
+  //                                                   ? Image.network(
+  //                                                       repliedMsg.mediaPath!,
+  //                                                       fit: BoxFit.cover,
+  //                                                     )
+  //                                                   : Image.file(
+  //                                                       File(
+  //                                                         repliedMsg.mediaPath!,
+  //                                                       ),
+  //                                                       fit: BoxFit.cover,
+  //                                                     )),
+  //                                       ),
+  //                                     ),
+
+  //                                   const SizedBox(width: 8),
+
+  //                                   // 📝 Nội dung reply (text hoặc fallback)
+  //                                   Flexible(
+  //                                     child: Text(
+  //                                       (repliedMsg.text != null &&
+  //                                               repliedMsg.text!
+  //                                                   .trim()
+  //                                                   .isNotEmpty)
+  //                                           ? repliedMsg.text!
+  //                                           : (repliedMsg.mediaPath != null
+  //                                                 ? "[Media]"
+  //                                                 : "[Tin nhắn rỗng]"),
+  //                                       style: const TextStyle(
+  //                                         color: Colors.black54,
+  //                                         fontSize: 13,
+  //                                         fontStyle: FontStyle.italic,
+  //                                       ),
+  //                                       overflow: TextOverflow.ellipsis,
+  //                                     ),
+  //                                   ),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           )
+  //                         else if (msg.replyToId != null)
+  //                           // Nếu chưa có trong _messages (ví dụ message cũ chưa load)
+  //                           Container(
+  //                             padding: const EdgeInsets.all(6),
+  //                             margin: const EdgeInsets.only(bottom: 4),
+  //                             decoration: BoxDecoration(
+  //                               color: Colors.grey.shade300,
+  //                               borderRadius: BorderRadius.circular(8),
+  //                             ),
+  //                             child: Row(
+  //                               mainAxisSize: MainAxisSize.min,
+  //                               children: [
+  //                                 Icon(
+  //                                   Icons.reply,
+  //                                   size: 16,
+  //                                   color: context.colorScheme.primary,
+  //                                 ),
+  //                                 const SizedBox(width: 8),
+  //                                 Flexible(
+  //                                   child: Text(
+  //                                     "Đang trả lời (id: ${msg.replyToId})",
+  //                                     style: const TextStyle(
+  //                                       color: Colors.black54,
+  //                                       fontSize: 13,
+  //                                       fontStyle: FontStyle.italic,
+  //                                     ),
+  //                                     overflow: TextOverflow.ellipsis,
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ),
+
+  //                         // 🖼 MEDIA (ảnh/video)
+  //                         if (hasMedia)
+  //                           Padding(
+  //                             padding: EdgeInsets.only(bottom: hasText ? 4 : 0),
+  //                             child: ClipRRect(
+  //                               borderRadius: BorderRadius.circular(14),
+  //                               child: ConstrainedBox(
+  //                                 constraints: const BoxConstraints(
+  //                                   maxWidth: 240,
+  //                                   maxHeight: 320,
+  //                                 ),
+  //                                 child: msg.mediaPath!.endsWith('.mp4')
+  //                                     ? _VideoPlayerBubble(
+  //                                         videoPath: msg.mediaPath!,
+  //                                       )
+  //                                     : (msg.mediaPath!.startsWith('http')
+  //                                           ? Image.network(
+  //                                               msg.mediaPath!,
+  //                                               fit: BoxFit.cover,
+  //                                             )
+  //                                           : Image.file(
+  //                                               File(msg.mediaPath!),
+  //                                               fit: BoxFit.cover,
+  //                                             )),
+  //                               ),
+  //                             ),
+  //                           ),
+
+  //                         // 💬 TEXT
+  //                         if (hasText)
+  //                           Container(
+  //                             decoration: BoxDecoration(
+  //                               color: bgColor,
+  //                               borderRadius: BorderRadius.circular(18),
+  //                             ),
+  //                             padding: const EdgeInsets.symmetric(
+  //                               horizontal: 12,
+  //                               vertical: 8,
+  //                             ),
+  //                             child: Text(
+  //                               msg.text!,
+  //                               style: TextStyle(
+  //                                 color: textColor,
+  //                                 fontSize: 15,
+  //                               ),
+  //                             ),
+  //                           ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+
+  //             if (isMine) const SizedBox(width: 6),
+  //             if (isMine)
+  //               CircleAvatar(
+  //                 backgroundImage: NetworkImage(me?.avatarUrl ?? ''),
+  //                 radius: 14,
+  //               ),
+  //           ],
+  //         ),
+
+  //         const SizedBox(height: 2),
+  //         Text(
+  //           "${msg.createdAt.hour}:${msg.createdAt.minute.toString().padLeft(2, '0')}",
+  //           style: const TextStyle(fontSize: 10, color: Colors.grey),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildMessage(MessageModel_chatscreen msg) {
     final isMine = msg.sentBy == me!.id;
     final bgColor = isMine ? primaryColor : Colors.grey.shade200;
@@ -345,6 +625,70 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
               : null)
         : null;
 
+    // 🆕 Nếu là tin nhắn chứa CALL_ID (cuộc gọi video)
+    if (msg.text != null && msg.text!.contains("CALL_ID:")) {
+      final callId = msg.text!.split("CALL_ID:").last.trim();
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Align(
+          alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isMine ? primaryColor.withOpacity(0.15) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: primaryColor, width: 1),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: isMine
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "📞 Cuộc gọi video",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  isMine
+                      ? "Bạn đã khởi tạo một cuộc gọi video."
+                      : "${other?.name ?? 'Người dùng'} đang gọi bạn!",
+                  style: const TextStyle(fontSize: 13),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.video_call_rounded, size: 20),
+                  label: const Text("Tham gia cuộc gọi"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            VideoCallScreen(userId: me!.id, callId: callId),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 🧩 Nếu KHÔNG phải tin nhắn CALL_ID → render như cũ
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
@@ -389,7 +733,7 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                             ? CrossAxisAlignment.end
                             : CrossAxisAlignment.start,
                         children: [
-                          // 🔁 Reply preview (tap để scroll)
+                          // 🔁 Reply preview
                           if (repliedMsg != null)
                             GestureDetector(
                               onTap: () => _scrollToMessage(repliedMsg.id),
@@ -397,16 +741,13 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                                 padding: const EdgeInsets.all(6),
                                 margin: const EdgeInsets.only(bottom: 4),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFFE6F9FC),
+                                  color: const Color(0xFFE6F9FC),
                                   borderRadius: BorderRadius.circular(21),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     const SizedBox(width: 6),
-
-                                    // 📸 Thumbnail nếu reply là media
                                     if (repliedMsg.mediaPath != null &&
                                         repliedMsg.mediaPath!.isNotEmpty)
                                       ClipRRect(
@@ -437,16 +778,11 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                                                       )),
                                         ),
                                       ),
-
                                     const SizedBox(width: 8),
-
-                                    // 📝 Nội dung reply (text hoặc fallback)
                                     Flexible(
                                       child: Text(
                                         (repliedMsg.text != null &&
-                                                repliedMsg.text!
-                                                    .trim()
-                                                    .isNotEmpty)
+                                                repliedMsg.text!.isNotEmpty)
                                             ? repliedMsg.text!
                                             : (repliedMsg.mediaPath != null
                                                   ? "[Media]"
@@ -462,41 +798,9 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
                                   ],
                                 ),
                               ),
-                            )
-                          else if (msg.replyToId != null)
-                            // Nếu chưa có trong _messages (ví dụ message cũ chưa load)
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              margin: const EdgeInsets.only(bottom: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.reply,
-                                    size: 16,
-                                    color: context.colorScheme.primary,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      "Đang trả lời (id: ${msg.replyToId})",
-                                      style: const TextStyle(
-                                        color: Colors.black54,
-                                        fontSize: 13,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
 
-                          // 🖼 MEDIA (ảnh/video)
+                          // 🖼 MEDIA
                           if (hasMedia)
                             Padding(
                               padding: EdgeInsets.only(bottom: hasText ? 4 : 0),
@@ -903,8 +1207,12 @@ class _CustomChatScreenState extends State<CustomChatScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.call_rounded, color: Colors.white),
-            onPressed: () {
-              // TODO: thêm chức năng gọi thoại
+            onPressed: () async {
+              await _startCall(
+                chatService: _chatService,
+                conversationId: widget.conversationId,
+                me: me!,
+              );
             },
           ),
 

@@ -3,6 +3,7 @@ import 'package:coach_workout/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/widgets.dart';
 
@@ -21,9 +22,12 @@ class OnboardingScreen extends StatelessWidget {
           children: [
             const Gap(30),
             Center(
-              child: const Text(
+              child: Text(
                 "Body measurements",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
 
@@ -43,9 +47,11 @@ class OnboardingScreen extends StatelessWidget {
               minInteger: 35,
               unit: 'kg',
               onChanged: (value) {},
+              path: 'assets/weight.jpg',
             ),
 
             NumberPickerField(
+              path: 'assets/age.jpg',
               label: "Age",
               unit: "years",
               minInteger: 15,
@@ -56,6 +62,7 @@ class OnboardingScreen extends StatelessWidget {
             ),
 
             NumberPickerField(
+              path: 'assets/height.jpg',
               label: "Height",
               unit: "cm",
               minInteger: 100,

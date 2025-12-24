@@ -6,6 +6,7 @@ import 'package:numberpicker/numberpicker.dart';
 class NumberPickerField extends StatefulWidget {
   final String label;
   final String unit;
+  final String path;
   final int minInteger;
   final int maxInteger;
   final double initialValue;
@@ -20,7 +21,8 @@ class NumberPickerField extends StatefulWidget {
     required this.maxInteger,
     required this.initialValue,
     required this.onChanged,
-    this.allowDecimal = true,
+    required this.path,
+    this.allowDecimal = true, 
   });
 
   @override
@@ -56,7 +58,7 @@ class _NumberPickerFieldState extends State<NumberPickerField> {
         color: const Color.fromARGB(255, 0, 79, 81),
         borderRadius: BorderRadius.circular(22),
         image: DecorationImage(
-          image: AssetImage("assets/weight.jpg"),
+          image: AssetImage(widget.path),
           opacity: 0.6,
           fit: BoxFit.cover,
         ),

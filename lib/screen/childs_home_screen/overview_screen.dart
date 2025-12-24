@@ -151,8 +151,10 @@ class OverviewScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
             child: MyCalendar(),
           ),
+          Gap(10),
+
           TextTile(title: 'Workout with AI'),
-          const Gap(10),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
             child: Row(
@@ -296,7 +298,7 @@ class OverviewScreen extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Text(
-                              'AI\nCoaching',
+                              'AI\nNutrition',
                               style: GoogleFonts.montserrat(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,

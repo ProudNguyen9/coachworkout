@@ -16,7 +16,7 @@ class _ButtonTapState extends State<ButtonTap> {
     'Overview',
     'Your Coach',
     'Nutrition Plan',
-    'Workout Schedule',
+    'Statistical Workout',
   ];
 
   @override

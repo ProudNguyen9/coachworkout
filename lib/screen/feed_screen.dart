@@ -345,27 +345,15 @@ class _FeedScreenState extends State<FeedScreen> {
         elevation: 0.8,
         centerTitle: true,
         title: const Text(
-          "My Feed",
+          "Community",
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w700,
             fontSize: 20,
             letterSpacing: 0.3,
           ),
-        ),
-        leadingWidth: 52,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: IconButton(
-            icon: const FaIcon(
-              FontAwesomeIcons.arrowLeft,
-              color: Colors.black87,
-              size: 18,
-            ),
-            onPressed: () => Navigator.pop(context),
-            tooltip: "Back",
-          ),
-        ),
+        ),  
+
         actions: [
           IconButton(
             tooltip: "Create Post",

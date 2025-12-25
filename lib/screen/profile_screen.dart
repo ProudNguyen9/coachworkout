@@ -23,12 +23,8 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const Gap(20),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                Gap(80),
                 Center(
                   child: TextTile(
                     // ignore: dead_code
@@ -59,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Center(
                   child: Text(
-                    'Username hehe',
+                    'Nguyen Huu Hao',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
@@ -68,7 +64,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 Center(
                   child: Text(
-                    'Nguyenvana@gmail.com',
+                    'Nguyenhuuhao9@gmail.com',
                     style: GoogleFonts.poppins(fontSize: 16),
                   ),
                 ),

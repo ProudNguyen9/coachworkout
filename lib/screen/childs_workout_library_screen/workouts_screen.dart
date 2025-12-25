@@ -7,14 +7,14 @@ import '../../widgets/widgets.dart';
 import '../screens.dart';
 import '../../providers/group_exercise_provider.dart';
 
-class AtHomeScreen extends StatefulWidget {
-  const AtHomeScreen({super.key});
+class Workouts extends StatefulWidget {
+  const Workouts({super.key});
 
   @override
-  State<AtHomeScreen> createState() => _AtHomeScreenState();
+  State<Workouts> createState() => _WorkoutsState();
 }
 
-class _AtHomeScreenState extends State<AtHomeScreen> {
+class _WorkoutsState extends State<Workouts> {
   @override
   void initState() {
     super.initState();
@@ -80,11 +80,11 @@ class _AtHomeScreenState extends State<AtHomeScreen> {
             TitleTextAndButtonSA(onPressed: () {}, title: 'Beginner Workout'),
 
             if (isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: CircularProgressIndicator(),
-                ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 3,
+                itemBuilder: (_, __) => const WorkoutSkeletonItem(),
               )
             else if (beginnerList.isEmpty)
               const Padding(
@@ -102,15 +102,12 @@ class _AtHomeScreenState extends State<AtHomeScreen> {
                     path: workout.urlThumbnail,
                     title: workout.title,
                     description: workout.description,
-                    // times: workout.duration ?? '',
                     ontap: () {
-                      print("heheh ${workout.id}");
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => WorkoutScreen(
                             groupId: workout.id,
-
                             groupName: workout.title,
                           ),
                         ),
@@ -186,6 +183,57 @@ class _AtHomeScreenState extends State<AtHomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class WorkoutSkeletonItem extends StatelessWidget {
+  const WorkoutSkeletonItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          // thumbnail
+          Container(
+            width: 90,
+            height: 70,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // text
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 14,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 12,
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

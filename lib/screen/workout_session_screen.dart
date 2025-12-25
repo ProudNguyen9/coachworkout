@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:coach_workout/data/models/groupexerciseitem.dart';
 import 'package:coach_workout/providers/group_exercise_provider.dart';
 import 'package:coach_workout/screen/home_screen.dart';
+import 'package:coach_workout/screen/root_screen.dart';
 import 'package:coach_workout/screen/workout_library.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -63,25 +66,47 @@ class _WorkoutSessionState extends State<WorkoutSession> {
     final current = exercises[currentIndex];
     remainingSeconds = current.durationSeconds;
 
+    // ⛔ REST thì không load video
     if (current.exerciseId == "rest") {
       _controller = null;
-    } else {
-      _controller =
-          VideoPlayerController.networkUrl(Uri.parse(current.mediaUrl ?? ''))
-            ..setLooping(true)
-            ..initialize().then((_) {
-              setState(() {});
-            });
+      return;
     }
 
-    // Cache video kế tiếp
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath =
+        "${dir.path}/videos/${widget.groupId}/${current.exerciseId}.mp4";
+    final file = File(filePath);
+
+    debugPrint("🎥 Play local video: $filePath");
+    debugPrint("📁 Exists: ${file.existsSync()}");
+
+    if (!file.existsSync()) {
+      debugPrint("❌ Video not found, skip");
+      _controller = null;
+      return;
+    }
+
+    _controller = VideoPlayerController.file(file)..setLooping(true);
+
+    await _controller!.initialize();
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    /// 🔥 preload video kế tiếp (LOCAL)
     if (currentIndex + 1 < exercises.length) {
       final next = exercises[currentIndex + 1];
-      if (next.exerciseId != "rest" && next.mediaUrl != null) {
-        _nextController = VideoPlayerController.networkUrl(
-          Uri.parse(next.mediaUrl!),
-        );
-        await _nextController!.initialize();
+
+      if (next.exerciseId != "rest") {
+        final nextPath =
+            "${dir.path}/videos/${widget.groupId}/${next.exerciseId}.mp4";
+        final nextFile = File(nextPath);
+
+        if (nextFile.existsSync()) {
+          _nextController = VideoPlayerController.file(nextFile);
+          await _nextController!.initialize();
+        }
       }
     }
   }
@@ -224,15 +249,23 @@ class _WorkoutSessionState extends State<WorkoutSession> {
                             )
                           : ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: _controller?.value.isInitialized ?? false
-                                  ? AspectRatio(
-                                      aspectRatio:
-                                          _controller!.value.aspectRatio,
-                                      child: VideoPlayer(_controller!),
-                                    )
-                                  : const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 220,
+                                child:
+                                    _controller != null &&
+                                        _controller!.value.isInitialized
+                                    ? FittedBox(
+                                        fit: BoxFit.cover,
+                                        child: SizedBox(
+                                          width: _controller!.value.size.width,
+                                          height:
+                                              _controller!.value.size.height,
+                                          child: VideoPlayer(_controller!),
+                                        ),
+                                      )
+                                    : const Center(),
+                              ),
                             ),
                     ),
                   ),
@@ -544,7 +577,7 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                        MaterialPageRoute(builder: (context) => RootScreen()),
                       );
                     },
                     icon: const Icon(

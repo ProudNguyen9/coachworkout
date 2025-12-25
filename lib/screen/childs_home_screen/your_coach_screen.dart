@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 
+import '../screens.dart';
+
 class YoursCoach extends StatelessWidget {
   const YoursCoach({super.key});
 
@@ -254,8 +256,8 @@ class _CoachCard extends StatelessWidget {
                             icon: const Icon(Icons.chat_outlined, size: 16),
                             label: const Text("Chat"),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00FF9C),
-                              foregroundColor: Colors.black,
+                              backgroundColor: context.colorScheme.secondary,
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 18,
                                 vertical: 8,
@@ -267,7 +269,15 @@ class _CoachCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 9),
                           OutlinedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CoachProfileScreen(),
+                                ),
+                              );
+                            },
                             icon: Icon(
                               isSuggested
                                   ? Icons.add_rounded

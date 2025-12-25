@@ -14,7 +14,7 @@ final List<Widget> pages = const [
   OverviewScreen(),
   YoursCoach(),
   NutritionPlanScreen(),
-  Center(child: Text('Workout Schedule Content')),
+  FitnessStatsScreen(),
 ];
 
 class HomeScreen extends StatelessWidget {
@@ -26,7 +26,6 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: NavBarBottom(),
         backgroundColor: context.colorScheme.surface,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

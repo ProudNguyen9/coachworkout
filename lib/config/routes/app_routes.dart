@@ -72,6 +72,11 @@ GoRouter getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
         parentNavigatorKey: navigatorKey,
         builder: WorkoutSession.builder,
       ),
+      GoRoute(
+        path: RouteLocation.root,
+        parentNavigatorKey: navigatorKey,
+        builder: RootScreen.builder,
+      ),
 
       // ✅ Supabase callback (chỉ để GoRouter không báo lỗi)
       GoRoute(
@@ -94,13 +99,13 @@ GoRouter getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
       final isAtCallback = state.matchedLocation == '/login-callback';
 
       // 🔹 Nếu Supabase trả về callback → bỏ qua not found và về home luôn
-      if (isAtCallback && loggedIn) return RouteLocation.home;
+      if (isAtCallback && loggedIn) return RouteLocation.root;
 
       // 🔹 Nếu chưa login mà đang ở trang khác → quay về login
       if (!loggedIn && !isAtLogin) return RouteLocation.login;
 
       // 🔹 Nếu đã login mà vẫn ở login → chuyển qua home
-      if (loggedIn && isAtLogin) return RouteLocation.home;
+      if (loggedIn && isAtLogin) return RouteLocation.root;
 
       return null;
     },

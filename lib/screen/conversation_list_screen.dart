@@ -177,9 +177,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
 
                             final displayName =
                                 partner?.name ?? partner?.email ?? 'User';
-                            final avatarUrl =
-                                partner?.avatarUrl ??
-                                'https://i.pravatar.cc/150?img=${index + 3}';
+                            final avatarUrl = partner?.avatarUrl ?? '';
                             final lastMessage =
                                 c.lastMessage?.content ?? 'No messages yet';
 
@@ -207,8 +205,13 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                                   children: [
                                     CircleAvatar(
                                       radius: 26,
-                                      backgroundImage: NetworkImage(avatarUrl),
+                                      backgroundImage:
+                                          const AssetImage(
+                                                'assets/icons/avatar.jpg',
+                                              )
+                                              as ImageProvider,
                                     ),
+
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(

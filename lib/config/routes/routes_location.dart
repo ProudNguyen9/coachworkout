@@ -8,6 +8,7 @@ class RouteLocation {
   static const String wourkoutlibrary = '/wourkoutlibrary';
   static const String profile = '/profile';
   static const String detail = '/detail';
+  static const String root = '/root';
   static const String workoutexercises = '/workoutexercises';
   static const String animatedcountdown = '/animatedcountdown';
   static const String WorkoutSession = '/WorkoutSession';

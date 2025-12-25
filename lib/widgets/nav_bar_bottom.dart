@@ -1,18 +1,15 @@
-import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
-import '../screen/screens.dart';
+class NavBarBottom extends StatelessWidget {
+  const NavBarBottom({
+    super.key,
+    required this.selectedIndex,
+    required this.onTabChange,
+  });
 
-class NavBarBottom extends StatefulWidget {
-  const NavBarBottom({super.key});
-
-  @override
-  _NavBarBottomState createState() => _NavBarBottomState();
-}
-
-class _NavBarBottomState extends State<NavBarBottom> {
-  int _selectedIndex = 0;
+  final int selectedIndex;
+  final ValueChanged<int> onTabChange;
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +28,12 @@ class _NavBarBottomState extends State<NavBarBottom> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: GNav(
+              selectedIndex: selectedIndex,
+
               rippleColor: colorScheme.primary.withOpacity(0.15),
               hoverColor: colorScheme.primary.withOpacity(0.05),
               gap: 10,
@@ -49,69 +48,17 @@ class _NavBarBottomState extends State<NavBarBottom> {
                 fontSize: 13,
                 color: colorScheme.primary,
               ),
-              tabs: [
-                GButton(
-                  icon: Icons.home_rounded,
-                  text: 'Home',
-                  onPressed: () {
-                    setState(() => _selectedIndex = 0);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomeScreen()),
-                    );
-                  },
-                ),
-                GButton(
-                  icon: Icons.message_rounded,
-                  text: 'Message',
-                  onPressed: () {
-                    setState(() => _selectedIndex = 1);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ConversationListScreen(),
-                      ),
-                    );
-                  },
-                ),
-                GButton(
-                  icon: Icons.public_rounded,
-                  text: 'Community',
-                  onPressed: () {
-                    setState(() => _selectedIndex = 2);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const FeedScreen()),
-                    );
-                  },
-                ),
-                GButton(
-                  icon: Icons.fitness_center_rounded,
-                  text: 'Workout',
-                  onPressed: () {
-                    setState(() => _selectedIndex = 3);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const WorkoutLibraryScreen(),
-                      ),
-                    );
-                  },
-                ),
-                GButton(
-                  icon: Icons.person_rounded,
-                  text: 'Profile',
-                  onPressed: () {
-                    setState(() => _selectedIndex = 4);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                    );
-                  },
-                ),
+
+              tabs: const [
+                GButton(icon: Icons.home_rounded, text: 'Home'),
+                GButton(icon: Icons.message_rounded, text: 'Message'),
+                GButton(icon: Icons.public_rounded, text: 'Community'),
+                GButton(icon: Icons.fitness_center_rounded, text: 'Workout'),
+                GButton(icon: Icons.person_rounded, text: 'Profile'),
               ],
-              selectedIndex: _selectedIndex,
-              onTabChange: (_) {},
+
+              /// 🔥 Chỉ đổi index
+              onTabChange: onTabChange,
             ),
           ),
         ),

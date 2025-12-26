@@ -1,5 +1,6 @@
 import 'package:coach_workout/screen/screens.dart';
 import 'package:coach_workout/utils/extensions.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +33,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               const Gap(40),
               Center(
                 child: Text(
-                  "Personal Information",
+                  'ProfileSetupScreen.personal_info_title'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     fontWeight: FontWeight.w500,
@@ -41,7 +42,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
               const Gap(10),
               Text(
-                'Please provide your accurate personal information below.',
+                'ProfileSetupScreen.personal_info_desc'.tr(),
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
@@ -120,13 +121,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ],
               ),
               const Gap(30),
-              const Text(
-                'Nickname',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Text(
+                'ProfileSetupScreen.nickname_label'.tr(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               TextField(
                 decoration: InputDecoration(
-                  hintText: "Enter your nickname",
+                  hintText: 'ProfileSetupScreen.nickname_hint'.tr(),
                   filled: true,
                   fillColor: context.colorScheme.surface,
                   contentPadding: const EdgeInsets.symmetric(
@@ -148,13 +149,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
               ),
               const Gap(20),
-              const Text(
-                'About me',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Text(
+                'ProfileSetupScreen.about_me_label'.tr(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               TextField(
                 decoration: InputDecoration(
-                  hintText: "Please share a little about yourself...",
+                  hintText: 'ProfileSetupScreen.about_me_hint'.tr(),
                   filled: true,
                   fillColor: context.colorScheme.surface,
                   contentPadding: const EdgeInsets.symmetric(
@@ -193,9 +194,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text(
-                  'Next',
-                  style: TextStyle(
+                child: Text(
+                  'ProfileSetupScreen.next_button'.tr(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

@@ -1,6 +1,7 @@
 import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// ===============================
 /// MODEL
@@ -41,21 +42,22 @@ class TimeSlot {
 /// ===============================
 /// SCREEN
 /// ===============================
-class CoachProfileScreen extends StatefulWidget {
-  const CoachProfileScreen({super.key});
+class CoachProfile_Booking_Screen extends StatefulWidget {
+  const CoachProfile_Booking_Screen({super.key});
 
   @override
-  State<CoachProfileScreen> createState() => _CoachProfileScreenState();
+  State<CoachProfile_Booking_Screen> createState() =>
+      _CoachProfile_Booking_ScreenState();
 }
 
-class _CoachProfileScreenState extends State<CoachProfileScreen> {
+class _CoachProfile_Booking_ScreenState
+    extends State<CoachProfile_Booking_Screen> {
   final Coach coach = Coach(
     name: 'Nguyen Doanh',
-    title: 'Certified Personal Trainer',
+    title: 'Đã có chứng chỉ thể hình ',
     rating: 4.9,
     reviews: 120,
-    bio:
-        '8+ years experience in weight loss, muscle building and home workout programs.',
+    bio: '8+ kinh nghiệm giảm béo ,vô địch thể hình quốc gia ',
     pricePerSession: 10,
     avatar: 'assets/doanh.png',
   );
@@ -63,9 +65,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
   final DateTime today = DateTime.now();
   DateTime currentMonth = DateTime.now();
 
-  /// ===============================
-  /// TIME SLOTS (7–8, 8–9, ...)
-  /// ===============================
   final List<TimeSlot> timeSlots = const [
     TimeSlot(7, 8),
     TimeSlot(8, 9),
@@ -83,8 +82,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
   @override
   void initState() {
     super.initState();
-
-    /// MOCK BUSY SLOTS
     busySlots.add(_slotKey(today, const TimeSlot(8, 9)));
     busySlots.add(
       _slotKey(today.add(const Duration(days: 1)), const TimeSlot(14, 15)),
@@ -98,9 +95,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
     return '${DateFormat('yyyy-MM-dd').format(date)}-${slot.start}-${slot.end}';
   }
 
-  /// ===============================
-  /// DAYS IN MONTH (FROM TODAY)
-  /// ===============================
   List<DateTime> get daysInMonth {
     final first = DateTime(currentMonth.year, currentMonth.month, 1);
     final last = DateTime(currentMonth.year, currentMonth.month + 1, 0);
@@ -121,10 +115,10 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: const Center(
+        title: Center(
           child: Text(
-            'Coach Profile',
-            style: TextStyle(
+            'coach_profile.title'.tr(),
+            style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w600,
               fontSize: 20,
@@ -152,9 +146,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
     );
   }
 
-  /// ===============================
-  /// COACH INFO
-  /// ===============================
   Widget _coachInfo() {
     return Row(
       children: [
@@ -182,12 +173,14 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
                 children: [
                   const Icon(Icons.star, size: 16, color: Colors.amber),
                   const SizedBox(width: 4),
-                  Text('${coach.rating} (${coach.reviews} reviews)'),
+                  Text(
+                    '${coach.rating} (${coach.reviews} ${'coach_profile.reviews'.tr()})',
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
-                '\$${coach.pricePerSession.toStringAsFixed(0)} / hour',
+                '\$${coach.pricePerSession.toStringAsFixed(0)} / ${'time.hour'.tr()}',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: context.colorScheme.secondary,
@@ -200,16 +193,13 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
     );
   }
 
-  /// ===============================
-  /// ABOUT
-  /// ===============================
   Widget _aboutCoach() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'About Coach',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        Text(
+          'coach_profile.about'.tr(),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Text(coach.bio, style: const TextStyle(color: Colors.grey)),
@@ -217,9 +207,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
     );
   }
 
-  /// ===============================
-  /// MONTH SWITCHER
-  /// ===============================
   Widget _monthSwitcher() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,7 +223,10 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
           },
         ),
         Text(
-          DateFormat('MMMM yyyy').format(currentMonth),
+          DateFormat(
+            'MMMM yyyy',
+            context.locale.languageCode,
+          ).format(currentMonth),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         IconButton(
@@ -254,9 +244,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
     );
   }
 
-  /// ===============================
-  /// SCHEDULE TABLE (TIME SLOT BASED)
-  /// ===============================
   Widget _scheduleTable() {
     final days = daysInMonth.take(7).toList();
 
@@ -270,7 +257,7 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
                 child: Column(
                   children: [
                     Text(
-                      DateFormat('E').format(d),
+                      DateFormat('E', context.locale.languageCode).format(d),
                       style: const TextStyle(fontSize: 11),
                     ),
                     Text(
@@ -332,9 +319,6 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
     );
   }
 
-  /// ===============================
-  /// ACTION BUTTONS
-  /// ===============================
   Widget _actionButtons() {
     return Row(
       children: [
@@ -349,7 +333,7 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
               ),
             ),
             child: Text(
-              'Consult',
+              'coach_profile.consult'.tr(),
               style: TextStyle(
                 color: context.colorScheme.secondary,
                 fontWeight: FontWeight.w600,
@@ -368,9 +352,9 @@ class _CoachProfileScreenState extends State<CoachProfileScreen> {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Text(
-              'Book Session',
-              style: TextStyle(
+            child: Text(
+              'coach_profile.book_session'.tr(),
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),

@@ -1,0 +1,270 @@
+{
+  "settings": {
+    "title": "Cài đặt",
+    "general": "Chung",
+    "language": "Ngôn ngữ",
+    "edit_profile": "Chỉnh sửa hồ sơ",
+    "location": "Vị trí",
+    "dark_mode": "Chế độ tối",
+    "notifications": "Thông báo",
+    "push_notifications": "Thông báo đẩy",
+    "email_notifications": "Email thông báo",
+    "support": "Hỗ trợ",
+    "contact_support": "Liên hệ hỗ trợ",
+    "rate_app": "Đánh giá ứng dụng",
+    "terms": "Điều khoản dịch vụ",
+    "logout": "Đăng xuất",
+    "choose_language": "Chọn ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "English"
+  },
+  "nav_bottom": {
+    "home": "Trang chủ",
+    "message": "Tin nhắn",
+    "community": "Cộng đồng",
+    "workout": "Tập luyện",
+    "profile": "Cá nhân"
+  },
+  "profile_screen": {
+    "title": "Hồ sơ của tôi",
+    "follow": "Theo dõi",
+    "message": "Nhắn tin",
+    "activities": "Hoạt động",
+    "today_report": "Báo cáo hôm nay",
+    "calories_burned": "Calo đã đốt",
+    "heart_rate": "Nhịp tim",
+    "carbohydrate": "Tinh bột",
+    "workout": "Tập luyện"
+  },
+  "workout_tabs": {
+    "overview": "Tổng quan",
+    "your_coach": "Huấn luận viên",
+    "nutrition_plan": "Dinh dưỡng",
+    "statistical_workout": "Thống kê"
+  },
+  "Dashboard_title": "Trang chủ",
+  "book_now": "Đặt ngay",
+  "overview": {
+    "physical_condition": "Thể trạng",
+    "height": "Chiều cao",
+    "weight": "Cân nặng",
+    "height_cm": "Chiều cao (cm)",
+    "weight_kg": "Cân nặng (kg)",
+    "today_schedule": "Lịch tập hôm nay",
+    "today_workout": "Bài tập hôm nay:",
+    "no_workout": "Chưa có bài tập",
+    "workout_ai": "Tập luyện với AI",
+    "ai_consult": "AI\nTư vấn",
+    "ai_nutrition": "AI\nDinh dưỡng",
+    "popular_workout": "Bài tập phổ biến",
+    "personal_coach": "Huấn luyện viên cá nhân",
+    "new_workout": "Bài tập mới"
+  },
+  "time": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "tomorrow": "Ngày mai",
+    "morning": "Buổi sáng",
+    "afternoon": "Buổi chiều",
+    "evening": "Buổi tối",
+    "night": "Ban đêm",
+    "hour": "giờ",
+    "minute": "phút",
+    "second": "giây",
+    "hour_value": "{} giờ",
+    "minute_value": "{} phút",
+    "second_value": "{} giây",
+    "hours_ago": "{} giờ trước",
+    "minutes_ago": "{} phút trước",
+    "seconds_ago": "{} giây trước",
+    "just_now": "Vừa xong",
+    "now": "Bây giờ",
+    "am": "SA",
+    "pm": "CH",
+    "from": "Từ",
+    "to": "Đến",
+    "start_time": "Giờ bắt đầu",
+    "end_time": "Giờ kết thúc",
+    "duration": "Thời lượng",
+    "all_day": "Cả ngày"
+  },
+  "coach": {
+    "title": "Huấn luyện viên của bạn",
+    "subtitle": "Tập luyện cùng các huấn luyện viên hàng đầu — trò chuyện, theo dõi và đặt lịch dễ dàng",
+    "suggested_title": "Huấn luyện viên đề xuất",
+    "suggested_subtitle": "Khám phá huấn luyện viên và phong cách tập mới",
+    "chat": "Chat",
+    "profile": "Hồ sơ",
+    "follow": "Theo dõi",
+    "book": "Đặt lịch",
+    "specialty": {
+      "strength": "Huấn luyện sức mạnh",
+      "yoga": "Yoga & dẻo dai",
+      "cardio": "Cardio & HIIT",
+      "pilates": "Chuyên gia Pilates",
+      "bodyweight": "Huấn luyện thể trọng"
+    }
+  },
+  "coach_profile": {
+    "title": "Hồ sơ huấn luyện viên",
+    "about": "Giới thiệu huấn luyện viên",
+    "reviews": "đánh giá",
+    "consult": "Tư vấn",
+    "book_session": "Đặt lịch ngay"
+  },
+  "nutrition": {
+    "title": "Chế độ dinh dưỡng",
+    "subtitle": "Theo dõi bữa ăn và lượng calo mỗi ngày",
+    "your_meals": "Các bữa ăn",
+    "breakfast": "Bữa sáng",
+    "lunch": "Bữa trưa",
+    "snack": "Bữa phụ",
+    "dinner": "Bữa tối",
+    "calories": "Calo",
+    "calories_consumed": "Calo đã tiêu thụ",
+    "daily_goal": "Mục tiêu mỗi ngày",
+    "kcal": "kcal",
+    "suggestion": "Gợi ý hôm nay",
+    "tip_hydration": "Uống đủ nước giúp cơ thể hấp thu dinh dưỡng và phục hồi tốt hơn."
+  },
+  "fitness": {
+    "workouts": "Buổi tập",
+    "steps": "Bước đi",
+    "calories": "Calo",
+    "workout_sessions": "Số buổi tập",
+    "walking": "Đi bộ (số bước)",
+    "calories_burned": "Năng lượng tiêu hao"
+  },
+  "day": {
+    "mon": "T2",
+    "tue": "T3",
+    "wed": "T4",
+    "thu": "T5",
+    "fri": "T6",
+    "sat": "T7",
+    "sun": "CN"
+  },
+  "chat": {
+    "messages": "Tin nhắn",
+    "search_conversation": "Tìm kiếm cuộc trò chuyện...",
+    "no_conversations": "Chưa có cuộc trò chuyện nào",
+    "user": "Người dùng",
+    "time": {
+      "just_now": "Vừa xong",
+      "minute": "ph",
+      "hour": "g",
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua"
+    }
+  },
+  "workout_library": {
+    "title": "Thư viện bài tập",
+    "tabs": {
+      "workouts": "Bài tập",
+      "walking": "Đi bộ",
+      "shop": "Cửa hàng"
+    },
+    "search_hint": "Tìm kiếm bài tập..."
+  },
+  "common": {
+    "clear": "Xoá",
+    "back": "Quay lại"
+  },
+  "walking": {
+    "title": "Đi bộ",
+    "today_steps": "Hôm nay • 3.245 bước",
+    "steps": "bước",
+    "distance": "Quãng đường",
+    "calories": "Calo",
+    "start": "Bắt đầu đi bộ",
+    "daily_goal": "Mục tiêu ngày",
+    "set_target": "Đặt mục tiêu đi bộ",
+    "set": "Đặt"
+  },
+  "workouts": {
+    "search_hint": "Tìm bài tập của bạn...",
+    "target_area": "Nhóm cơ mục tiêu",
+    "weekly_challenge": "Thử thách tuần này",
+    "beginner_workout": "Bài tập cho người mới",
+    "no_workouts": "Chưa có bài tập nào 😕",
+    "just_for_you": "Dành cho bạn",
+    "workout_plan": "Kế hoạch tập luyện",
+    "ai_coaching": "Huấn luyện AI",
+    "nutrition": "Dinh dưỡng",
+    "yoga": "Yoga",
+    "cardio": "Cardio",
+    "hiit": "HIIT",
+    "full_body": "Toàn thân",
+    "supplement_guide": "Hướng dẫn bổ sung",
+    "quick_effective": "15 phút hiệu quả "
+  },
+  "see_all": "Xem tất cả",
+  "muscles": {
+    "chest": "Ngực",
+    "back": "Lưng",
+    "shoulders": "Vai",
+    "biceps": "Tay trước",
+    "triceps": "Tay sau",
+    "legs": "Chân",
+    "core": "Cơ bụng"
+  },
+  "workout": {
+    "default_title": "Bài tập",
+    "any_equipment": "Không cần dụng cụ",
+    "preparing_title": "Đang chuẩn bị bài tập 💪",
+    "preparing_desc": "Vui lòng chờ trong khi chúng tôi chuẩn bị mọi thứ cho bạn...",
+    "sets": "hiệp",
+    "reps": "lần",
+    "view_tutorial": "Xem hướng dẫn",
+    "add_to_schedule": "Thêm vào lịch tập",
+    "start_now": "Bắt đầu"
+  },
+  "WorkoutSession": {
+    "rest_time_appbar": "Thời gian nghỉ 😌",
+    "doing_great_appbar": "Bạn đang làm tốt lắm! 💪🔥",
+    "rest_time_body": "Thời gian nghỉ 😴\nHít thở sâu đi!",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "quit_confirmation": "Bạn có chắc muốn\nThoát bài tập?",
+    "quit_button": "Thoát",
+    "close_button": "Đóng"
+  },
+  "CelebrationScreen": {
+    "completed_title": "Hoàn thành bài tập!",
+    "amazing_text": "Bạn đã làm tuyệt vời 💪🔥",
+    "back_home": "Về trang chủ"
+  },
+  "LoginScreen": {
+    "welcome": "Chào mừng",
+    "agreeing_terms": "Bằng cách đăng nhập, bạn đồng ý với ",
+    "terms_policy": "Điều khoản và chính sách bảo mật",
+    "email_hint": "Địa chỉ Email",
+    "password_hint": "Mật khẩu",
+    "remember_me": "Ghi nhớ tôi",
+    "forgot_password": "Quên mật khẩu?",
+    "login_button": "Đăng nhập",
+    "register_button": "Đăng ký",
+    "or_connect": "hoặc kết nối với"
+  },
+  "Footer": {
+    "copyright": "© 2025 MyApp của Nguyen Huu Hao.",
+    "need_help": "Cần hỗ trợ? Liên hệ đội ngũ"
+  },
+  "OnboardingScreen": {
+    "body_measurements": "Đo lường cơ thể",
+    "recommend_info": "Để gợi ý bài tập phù hợp, vui lòng nhập thông tin sau:",
+    "weight_label": "Cân nặng",
+    "age_label": "Tuổi",
+    "height_label": "Chiều cao",
+    "next_button": "Tiếp theo"
+  },
+  "ProfileSetupScreen": {
+    "personal_info_title": "Thông tin cá nhân",
+    "personal_info_desc": "Vui lòng cung cấp thông tin cá nhân chính xác của bạn bên dưới.",
+    "nickname_label": "Biệt danh",
+    "nickname_hint": "Nhập biệt danh của bạn",
+    "about_me_label": "Về tôi",
+    "about_me_hint": "Hãy chia sẻ một chút về bản thân...",
+    "next_button": "Tiếp theo"
+  }
+}

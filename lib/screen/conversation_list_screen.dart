@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -94,7 +95,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Messages',
+          'chat.messages'.tr(),
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w500,
             color: Colors.black,
@@ -131,7 +132,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                   controller: _searchController,
                   readOnly: true,
                   decoration: InputDecoration(
-                    hintText: 'Search conversation...',
+                    hintText: 'chat.search_conversation'.tr(),
                     prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     filled: true,
                     fillColor: Colors.grey.shade100,
@@ -150,9 +151,9 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                   onRefresh: _refresh,
                   color: primary,
                   child: _conversations.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Text(
-                            'No conversations yet',
+                            'chat.no_conversations'.tr(),
                             style: TextStyle(color: Colors.black54),
                           ),
                         )
@@ -176,10 +177,14 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                                 : c.user1;
 
                             final displayName =
-                                partner?.name ?? partner?.email ?? 'User';
+                                partner?.name ??
+                                partner?.email ??
+                                'chat.user'.tr();
+
                             final avatarUrl = partner?.avatarUrl ?? '';
                             final lastMessage =
-                                c.lastMessage?.content ?? 'No messages yet';
+                                c.lastMessage?.content ??
+                                'chat.no_conversations'.tr();
 
                             return InkWell(
                               borderRadius: BorderRadius.circular(16),
@@ -279,12 +284,22 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
 
   String _formatTime(DateTime? time) {
     if (time == null) return '';
+
     final now = DateTime.now();
     final diff = now.difference(time);
 
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
+    if (diff.inMinutes < 1) {
+      return 'chat.time.just_now'.tr();
+    }
+
+    if (diff.inMinutes < 60) {
+      return '${diff.inMinutes} ${'chat.time.minute'.tr()}';
+    }
+
+    if (diff.inHours < 24) {
+      return '${diff.inHours} ${'chat.time.hour'.tr()}';
+    }
+
     return '${time.day}/${time.month}';
   }
 }

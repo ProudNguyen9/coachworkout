@@ -1,6 +1,7 @@
 import 'package:coach_workout/config/theme/color_scheme_extension.dart';
 import 'package:coach_workout/providers/provider.dart';
 import 'package:coach_workout/utils/extensions.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,10 +14,10 @@ class ButtonTap extends StatefulWidget {
 
 class _ButtonTapState extends State<ButtonTap> {
   final List<String> buttons = [
-    'Overview',
-    'Your Coach',
-    'Nutrition Plan',
-    'Statistical Workout',
+  'workout_tabs.overview',
+  'workout_tabs.your_coach',
+  'workout_tabs.nutrition_plan',
+  'workout_tabs.statistical_workout',
   ];
 
   @override
@@ -46,7 +47,7 @@ class _ButtonTapState extends State<ButtonTap> {
                 ),
               ),
               child: Text(
-                buttons[index],
+                buttons[index].tr(),
                 style: TextStyle(
                   color: isSelected
                       ? Colors.white

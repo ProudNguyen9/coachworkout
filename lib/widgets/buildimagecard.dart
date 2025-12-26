@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 Widget buildImageCard(BuildContext context, String imageUrl, String title) {
@@ -33,7 +34,7 @@ Widget buildImageCard(BuildContext context, String imageUrl, String title) {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '11 Mins',
+                'time.minute_value'.tr(args: ['11']),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,

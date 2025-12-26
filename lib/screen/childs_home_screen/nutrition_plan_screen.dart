@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class NutritionPlanScreen extends StatelessWidget {
   const NutritionPlanScreen({super.key});
@@ -9,33 +10,33 @@ class NutritionPlanScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
 
-    // 🔹 Data mẫu
+    // 🔹 Data mẫu (giữ nguyên – DB sau gắn cũng OK)
     final List<Map<String, dynamic>> meals = [
       {
-        'name': 'Breakfast',
+        'name': 'Bữa sáng',
         'calories': 420,
-        'food': 'Oatmeal with banana & nuts',
+        'food': 'Yến mạch với chuối và các loại hạt',
         'image':
             'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800',
       },
       {
-        'name': 'Lunch',
+        'name': 'Bữa trưa',
         'calories': 650,
-        'food': 'Grilled chicken with brown rice & broccoli',
+        'food': 'Ức gà nướng với gạo lứt và bông cải xanh',
         'image':
             'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800',
       },
       {
-        'name': 'Snack',
+        'name': 'Bữa phụ',
         'calories': 200,
-        'food': 'Protein shake with berries',
+        'food': 'Sinh tố protein với quả mọng',
         'image':
             'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800',
       },
       {
-        'name': 'Dinner',
+        'name': 'Bữa tối',
         'calories': 580,
-        'food': 'Salmon with quinoa & avocado',
+        'food': 'Cá hồi với quinoa và bơ',
         'image':
             'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800',
       },
@@ -59,7 +60,7 @@ class NutritionPlanScreen extends StatelessWidget {
             children: [
               // ====== HEADER ======
               Text(
-                "Today's Nutrition Plan",
+                'nutrition.title'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -68,7 +69,7 @@ class NutritionPlanScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "Track your meals and stay within your calorie goal.",
+                'nutrition.subtitle'.tr(),
                 style: GoogleFonts.poppins(
                   color: Colors.grey[700],
                   fontSize: 14,
@@ -86,7 +87,7 @@ class NutritionPlanScreen extends StatelessWidget {
 
               // ====== MEAL LIST ======
               Text(
-                "Your Meals",
+                'nutrition.your_meals'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -113,7 +114,7 @@ class NutritionPlanScreen extends StatelessWidget {
 
               // ====== SUGGESTION ======
               Text(
-                "Today's Suggestion",
+                'nutrition.suggestion'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -121,7 +122,7 @@ class NutritionPlanScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _SuggestionBox(),
+              const _SuggestionBox(),
             ],
           ),
         ),
@@ -191,7 +192,7 @@ class _ProgressCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "${consumed.toInt()} / ${goal.toInt()} kcal",
+                  "${consumed.toInt()} / ${goal.toInt()} ${'nutrition.kcal'.tr()}",
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -200,7 +201,7 @@ class _ProgressCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Calories consumed today",
+                  'nutrition.calories_consumed'.tr(),
                   style: GoogleFonts.poppins(
                     color: Colors.grey[600],
                     fontSize: 13,
@@ -272,7 +273,6 @@ class _MealCard extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -285,7 +285,7 @@ class _MealCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    "$calories kcal",
+                    "$calories ${'nutrition.kcal'.tr()}",
                     style: GoogleFonts.poppins(
                       color: const Color(0xFF00C853),
                       fontWeight: FontWeight.w600,
@@ -303,6 +303,8 @@ class _MealCard extends StatelessWidget {
 }
 
 class _SuggestionBox extends StatelessWidget {
+  const _SuggestionBox();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -321,7 +323,7 @@ class _SuggestionBox extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              "Tip: Stay hydrated! Drink at least 2L of water today 💧",
+              'nutrition.tip_hydration'.tr(),
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14,

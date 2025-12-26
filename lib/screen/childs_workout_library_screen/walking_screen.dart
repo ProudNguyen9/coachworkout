@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gap/gap.dart';
@@ -28,7 +29,7 @@ class WalkingScreen extends StatelessWidget {
                   children: [
                     /// HEADER
                     Text(
-                      'Walking',
+                      'walking.title'.tr(),
                       style: GoogleFonts.inter(
                         fontSize: 26,
                         fontWeight: FontWeight.w600,
@@ -36,7 +37,7 @@ class WalkingScreen extends StatelessWidget {
                     ),
                     const Gap(6),
                     Text(
-                      'Today • 3,245 steps',
+                      'walking.today_steps'.tr(), // Today • 3,245 steps
                       style: GoogleFonts.inter(fontSize: 14, color: textSub),
                     ),
 
@@ -65,7 +66,7 @@ class WalkingScreen extends StatelessWidget {
                               ),
                               const Gap(4),
                               Text(
-                                'steps',
+                                'walking.steps'.tr(),
                                 style: GoogleFonts.inter(
                                   fontSize: 13,
                                   color: textSub,
@@ -84,7 +85,7 @@ class WalkingScreen extends StatelessWidget {
                       children: const [
                         Expanded(
                           child: _MetricCard(
-                            title: 'Distance',
+                            title: 'walking.distance',
                             value: '2.3 km',
                             icon: Icons.route_rounded,
                             gradient: [Color(0xFF22B8F0), Color(0xFF4DD0E1)],
@@ -93,7 +94,7 @@ class WalkingScreen extends StatelessWidget {
                         Gap(14),
                         Expanded(
                           child: _MetricCard(
-                            title: 'Calories',
+                            title: 'walking.calories',
                             value: '123 kcal',
                             icon: Icons.local_fire_department_rounded,
                             gradient: [Color(0xFFFF8A65), Color(0xFFFF7043)],
@@ -105,7 +106,7 @@ class WalkingScreen extends StatelessWidget {
                     const Gap(18),
 
                     /// SET GOAL
-                    _SetGoalCard(),
+                    const _SetGoalCard(),
                   ],
                 ),
               ),
@@ -127,7 +128,7 @@ class WalkingScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Start walking',
+                    'walking.start'.tr(),
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -220,7 +221,7 @@ class _MetricCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
+                title.tr(),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: Colors.white.withOpacity(0.85),
@@ -245,6 +246,8 @@ class _MetricCard extends StatelessWidget {
 
 /// ================= SET GOAL =================
 class _SetGoalCard extends StatelessWidget {
+  const _SetGoalCard();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -274,7 +277,7 @@ class _SetGoalCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Daily goal',
+                  'walking.daily_goal'.tr(),
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -282,7 +285,7 @@ class _SetGoalCard extends StatelessWidget {
                 ),
                 const Gap(4),
                 Text(
-                  'Set your walking target',
+                  'walking.set_target'.tr(),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: WalkingScreen.textSub,
@@ -294,7 +297,7 @@ class _SetGoalCard extends StatelessWidget {
           TextButton(
             onPressed: () {},
             child: Text(
-              'Set',
+              'walking.set'.tr(),
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600,
                 color: WalkingScreen.primary,

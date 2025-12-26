@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 Widget buildCoachCard(String imageUrl, String name) {
@@ -39,8 +40,8 @@ Widget buildCoachCard(String imageUrl, String name) {
             ),
             minimumSize: const Size(60, 30),
           ),
-          child: const Text(
-            "Coach",
+          child: Text(
+            'book_now'.tr(),
             style: TextStyle(color: Color(0xFF00B5D8)),
           ),
         ),

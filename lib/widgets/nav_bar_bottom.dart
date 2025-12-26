@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -49,12 +50,24 @@ class NavBarBottom extends StatelessWidget {
                 color: colorScheme.primary,
               ),
 
-              tabs: const [
-                GButton(icon: Icons.home_rounded, text: 'Home'),
-                GButton(icon: Icons.message_rounded, text: 'Message'),
-                GButton(icon: Icons.public_rounded, text: 'Community'),
-                GButton(icon: Icons.fitness_center_rounded, text: 'Workout'),
-                GButton(icon: Icons.person_rounded, text: 'Profile'),
+              tabs: [
+                GButton(icon: Icons.home_rounded, text:'nav_bottom.home'.tr()),
+                GButton(
+                  icon: Icons.message_rounded,
+                  text:'nav_bottom.message'.tr(),
+                ),
+                GButton(
+                  icon: Icons.public_rounded,
+                  text:'nav_bottom.community'.tr(),
+                ),
+                GButton(
+                  icon: Icons.fitness_center_rounded,
+                  text:'nav_bottom.workout'.tr(),
+                ),
+                GButton(
+                  icon: Icons.person_rounded,
+                  text:'nav_bottom.profile'.tr(),
+                ),
               ],
 
               /// 🔥 Chỉ đổi index

@@ -1,14 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class MuscleScrollRow extends StatelessWidget {
   final List<Map<String, String>> muscles = [
-    {'name': 'Chest', 'image': 'assets/libraryworkout/chest.png'},
-    {'name': 'Back', 'image': 'assets/libraryworkout/back.png'},
-    {'name': 'Shoulders', 'image': 'assets/libraryworkout/shoulders.png'},
-    {'name': 'Biceps', 'image': 'assets/libraryworkout/biceps.png'},
-    {'name': 'Triceps', 'image': 'assets/libraryworkout/triceps.png'},
-    {'name': 'Legs', 'image': 'assets/libraryworkout/legs.png'},
-    {'name': 'Core', 'image': 'assets/libraryworkout/core.png'},
+    {'key': 'chest', 'image': 'assets/libraryworkout/chest.png'},
+    {'key': 'back', 'image': 'assets/libraryworkout/back.png'},
+    {'key': 'shoulders', 'image': 'assets/libraryworkout/shoulders.png'},
+    {'key': 'biceps', 'image': 'assets/libraryworkout/biceps.png'},
+    {'key': 'triceps', 'image': 'assets/libraryworkout/triceps.png'},
+    {'key': 'legs', 'image': 'assets/libraryworkout/legs.png'},
+    {'key': 'core', 'image': 'assets/libraryworkout/core.png'},
   ];
 
   MuscleScrollRow({super.key});
@@ -22,7 +23,7 @@ class MuscleScrollRow extends StatelessWidget {
         child: Row(
           children: [
             ...muscles.map((muscle) => _buildMuscleCard(muscle)),
-            _buildCustomCard(), // ô Custom
+            _buildCustomCard(),
           ],
         ),
       ),
@@ -44,19 +45,12 @@ class MuscleScrollRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: Stack(
                 children: [
-                  (muscle['image']!.startsWith('http'))
-                      ? Image.network(
-                          muscle['image']!,
-                          height: 100,
-                          width: 120,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          muscle['image']!,
-                          height: 100,
-                          width: 120,
-                          fit: BoxFit.cover,
-                        ),
+                  Image.asset(
+                    muscle['image']!,
+                    height: 100,
+                    width: 120,
+                    fit: BoxFit.cover,
+                  ),
                   Container(
                     height: 100,
                     width: 120,
@@ -75,7 +69,7 @@ class MuscleScrollRow extends StatelessWidget {
                     bottom: 6,
                     left: 8,
                     child: Text(
-                      muscle['name']!,
+                      'muscles.${muscle['key']}'.tr(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -92,7 +86,7 @@ class MuscleScrollRow extends StatelessWidget {
     );
   }
 
-  /// ô Custom với gradient
+  /// ô Custom
   Widget _buildCustomCard() {
     return GestureDetector(
       onTap: () {},
@@ -122,7 +116,7 @@ class MuscleScrollRow extends StatelessWidget {
                   BoxShadow(
                     color: Colors.blueAccent.withOpacity(0.4),
                     blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),

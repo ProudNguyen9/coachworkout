@@ -24,4 +24,5 @@ export 'custom_chat_screen.dart';
 export 'daily_call_screen.dart';
 export 'splash_screen.dart';
 export 'root_screen.dart';
-export 'coach_profile_screen.dart';
+export 'coach_profile_booking_screen.dart';
+export 'settings_screen.dart';

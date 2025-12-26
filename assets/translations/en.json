@@ -1,0 +1,270 @@
+{
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "language": "Language",
+    "edit_profile": "Edit profile",
+    "location": "Location",
+    "dark_mode": "Dark mode",
+    "notifications": "Notifications",
+    "push_notifications": "Push notifications",
+    "email_notifications": "Email notifications",
+    "support": "Support",
+    "contact_support": "Contact support",
+    "rate_app": "Rate app",
+    "terms": "Terms of service",
+    "logout": "Log out",
+    "choose_language": "Choose language",
+    "vietnamese": "Vietnamese",
+    "english": "English"
+  },
+  "nav_bottom": {
+    "home": "Home",
+    "message": "Messages",
+    "community": "Community",
+    "workout": "Workout",
+    "profile": "Profile"
+  },
+  "profile_screen": {
+    "title": "My Profile",
+    "follow": "Follow",
+    "message": "Message",
+    "activities": "Activities",
+    "today_report": "Today's Report",
+    "calories_burned": "Calories Burned",
+    "heart_rate": "Heart Rate",
+    "carbohydrate": "Carbohydrate",
+    "workout": "Workout"
+  },
+  "workout_tabs": {
+    "overview": "Overview",
+    "your_coach": "Coach",
+    "nutrition_plan": "Nutrition",
+    "statistical_workout": "Stats"
+  },
+  "Dashboard_title": "Dashboard",
+  "book_now": "Book now",
+  "overview": {
+    "physical_condition": "Physical condition",
+    "height": "Height",
+    "weight": "Weight",
+    "height_cm": "Height (cm)",
+    "weight_kg": "Weight (kg)",
+    "today_schedule": "Today’s workout schedule",
+    "today_workout": "Today's workout:",
+    "no_workout": "No workout found for today",
+    "workout_ai": "Workout with AI",
+    "ai_consult": "AI\nConsult",
+    "ai_nutrition": "AI\nNutrition",
+    "popular_workout": "Popular workouts",
+    "personal_coach": "Personal coach",
+    "new_workout": "New workouts"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "night": "Night",
+    "hour": "hour",
+    "minute": "minute",
+    "second": "second",
+    "hour_value": "{} hour",
+    "minute_value": "{} minute",
+    "second_value": "{} second",
+    "hours_ago": "{} hours ago",
+    "minutes_ago": "{} minutes ago",
+    "seconds_ago": "{} seconds ago",
+    "just_now": "Just now",
+    "now": "Now",
+    "am": "AM",
+    "pm": "PM",
+    "from": "From",
+    "to": "To",
+    "start_time": "Start time",
+    "end_time": "End time",
+    "duration": "Duration",
+    "all_day": "All day"
+  },
+  "coach": {
+    "title": "Your Coaches",
+    "subtitle": "Train with top coaches — chat, follow, and book sessions easily",
+    "suggested_title": "Coaches You May Like",
+    "suggested_subtitle": "Discover new trainers and workout styles",
+    "chat": "Chat",
+    "profile": "Profile",
+    "follow": "Follow",
+    "book": "Book Session",
+    "specialty": {
+      "strength": "Strength Trainer",
+      "yoga": "Yoga & Flexibility",
+      "cardio": "Cardio & HIIT",
+      "pilates": "Pilates Expert",
+      "bodyweight": "Bodyweight Coach"
+    }
+  },
+  "coach_profile": {
+    "title": "Coach Profile",
+    "about": "About Coach",
+    "reviews": "reviews",
+    "consult": "Consult",
+    "book_session": "Book Session"
+  },
+  "nutrition": {
+    "title": "Nutrition Plan",
+    "subtitle": "Track your meals and daily calorie intake",
+    "your_meals": "Your Meals",
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "snack": "Snack",
+    "dinner": "Dinner",
+    "calories": "Calories",
+    "calories_consumed": "Calories consumed",
+    "daily_goal": "Daily goal",
+    "kcal": "kcal",
+    "suggestion": "Today's Suggestion",
+    "tip_hydration": "Stay hydrated to help your body absorb nutrients and recover better."
+  },
+  "fitness": {
+    "workouts": "Workouts",
+    "steps": "Steps",
+    "calories": "Calories",
+    "workout_sessions": "Workout Sessions",
+    "walking": "Walking (Steps)",
+    "calories_burned": "Calories Burned"
+  },
+  "day": {
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun"
+  },
+  "chat": {
+    "messages": "Messages",
+    "search_conversation": "Search conversation...",
+    "no_conversations": "No conversations yet",
+    "user": "User",
+    "time": {
+      "just_now": "Just now",
+      "minute": "m",
+      "hour": "h",
+      "today": "Today",
+      "yesterday": "Yesterday"
+    }
+  },
+  "workout_library": {
+    "title": "Workout Library",
+    "tabs": {
+      "workouts": "Workouts",
+      "walking": "Walking",
+      "shop": "Shop"
+    },
+    "search_hint": "Search workouts..."
+  },
+  "common": {
+    "clear": "Clear",
+    "back": "Back"
+  },
+  "walking": {
+    "title": "Walking",
+    "today_steps": "Today • 3,245 steps",
+    "steps": "steps",
+    "distance": "Distance",
+    "calories": "Calories",
+    "start": "Start walking",
+    "daily_goal": "Daily goal",
+    "set_target": "Set your walking target",
+    "set": "Set"
+  },
+  "workouts": {
+    "search_hint": "Find your workout...",
+    "target_area": "Target Area",
+    "weekly_challenge": "Weekly Challenge",
+    "beginner_workout": "Beginner Workout",
+    "no_workouts": "No workouts found 😕",
+    "just_for_you": "Just For You",
+    "workout_plan": "Workout Plan",
+    "ai_coaching": "AI Coaching",
+    "nutrition": "Nutrition",
+    "yoga": "Yoga",
+    "cardio": "Cardio",
+    "hiit": "HIIT",
+    "full_body": "Full Body",
+    "supplement_guide": "Supplement Guide",
+    "quick_effective": "15 Quick & Effective"
+  },
+  "see_all": "See all",
+  "muscles": {
+    "chest": "Chest",
+    "back": "Back",
+    "shoulders": "Shoulders",
+    "biceps": "Biceps",
+    "triceps": "Triceps",
+    "legs": "Legs",
+    "core": "Core"
+  },
+  "workout": {
+    "default_title": "Workout",
+    "any_equipment": "No Equipment",
+    "preparing_title": "Preparing your workout 💪",
+    "preparing_desc": "Please wait while we get everything ready for you...",
+    "sets": "sets",
+    "reps": "reps",
+    "view_tutorial": "View Tutorial",
+    "add_to_schedule": "Add to Schedule",
+    "start_now": "Start Now"
+  },
+  "WorkoutSession": {
+    "rest_time_appbar": "Rest Time 😌",
+    "doing_great_appbar": "You’re doing great! 💪🔥",
+    "rest_time_body": "Rest Time 😴\nTake a deep breath!",
+    "previous": "Previous",
+    "next": "Next",
+    "quit_confirmation": "Are you sure you want to\nQuit Exercise?",
+    "quit_button": "Quit",
+    "close_button": "Close"
+  },
+  "CelebrationScreen": {
+    "completed_title": "Workout Completed!",
+    "amazing_text": "You did amazing 💪🔥",
+    "back_home": "Back to Home"
+  },
+  "LoginScreen": {
+    "welcome": "Welcome",
+    "agreeing_terms": "By signing in you are agreeing our ",
+    "terms_policy": "Term and privacy policy",
+    "email_hint": "Email Address",
+    "password_hint": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forget password?",
+    "login_button": "Login",
+    "register_button": "Register",
+    "or_connect": "or connect with"
+  },
+  "Footer": {
+    "copyright": "© 2025 MyApp of Nguyen Huu Hao.",
+    "need_help": "Need help? Contact support"
+  },
+  "OnboardingScreen": {
+    "body_measurements": "Body measurements",
+    "recommend_info": "To recommend suitable workouts, please enter the following information:",
+    "weight_label": "Weight",
+    "age_label": "Age",
+    "height_label": "Height",
+    "next_button": "Next"
+  },
+  "ProfileSetupScreen": {
+    "personal_info_title": "Personal Information",
+    "personal_info_desc": "Please provide your accurate personal information below.",
+    "nickname_label": "Nickname",
+    "nickname_hint": "Enter your nickname",
+    "about_me_label": "About me",
+    "about_me_hint": "Please share a little about yourself...",
+    "next_button": "Next"
+  }
+}

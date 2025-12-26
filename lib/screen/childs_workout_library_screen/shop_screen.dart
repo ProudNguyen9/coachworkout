@@ -2,11 +2,11 @@ import 'package:coach_workout/utils/extensions.dart';
 import 'package:flutter/material.dart';
 
 /// ===============================
-/// PRODUCT MODEL
+/// MODEL SẢN PHẨM
 /// ===============================
 class Product {
   final String name;
-  final String image; // asset or network
+  final String image; // asset hoặc network
   final double price;
   final double? oldPrice;
   final bool bestSeller;
@@ -23,44 +23,42 @@ class Product {
 }
 
 /// ===============================
-/// TEMP DATA (REPLACE BY API LATER)
+/// DỮ LIỆU TẠM (SAU NÀY THAY BẰNG API)
 /// ===============================
 final List<Product> products = [
   Product(
-    name: 'Adjustable Dumbbell Set',
+    name: 'Bộ tạ tay điều chỉnh',
     image: 'assets/images/dumbbell.jpg',
     price: 299,
-    oldPrice: 399,
     salePercent: 25,
     bestSeller: true,
   ),
   Product(
-    name: 'Yoga Mat Premium',
+    name: 'Thảm Yoga cao cấp',
     image: 'assets/images/yoga_mat.jpg',
     price: 199,
     bestSeller: true,
   ),
   Product(
-    name: 'Resistance Bands Kit',
+    name: 'Bộ dây kháng lực',
     image: 'assets/images/bands.jpg',
     price: 149,
-    oldPrice: 199,
+
     salePercent: 20,
   ),
   Product(
-    name: 'Pull-up Bar',
+    name: 'Xà đơn treo cửa',
     image: 'assets/images/pullup.jpg',
     price: 179,
     bestSeller: true,
   ),
   Product(
-    name: 'Kettlebell 12kg',
+    name: 'Tạ bình vôi 12kg',
     image: 'assets/images/kettlebell.jpg',
     price: 259,
   ),
-
   Product(
-    name: 'Foam Roller Pro',
+    name: 'Con lăn massage cơ bắp',
     image: 'assets/images/roller.png',
     price: 99,
     salePercent: 10,
@@ -68,7 +66,7 @@ final List<Product> products = [
 ];
 
 /// ===============================
-/// SHOP SCREEN
+/// MÀN HÌNH CỬA HÀNG
 /// ===============================
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
@@ -90,7 +88,7 @@ class ShopScreen extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
-                hintText: 'Find product...',
+                hintText: 'Tìm kiếm sản phẩm...',
                 filled: true,
                 fillColor: context.colorScheme.surface,
                 focusColor: context.colorScheme.surface,
@@ -116,7 +114,7 @@ class ShopScreen extends StatelessWidget {
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.7, // đủ cao -> không overflow
+            childAspectRatio: 0.7,
           ),
           itemBuilder: (context, index) {
             return ProductCard(product: products[index]);
@@ -128,7 +126,7 @@ class ShopScreen extends StatelessWidget {
 }
 
 /// ===============================
-/// PRODUCT CARD
+/// THẺ SẢN PHẨM
 /// ===============================
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -152,13 +150,12 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// ===============================
-          /// IMAGE + TAGS (FIX FULL IMAGE)
+          /// HÌNH ẢNH + NHÃN
           /// ===============================
           AspectRatio(
             aspectRatio: 1.3,
             child: Stack(
               children: [
-                /// IMAGE FULL CARD
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(
@@ -166,7 +163,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: Image.asset(
                       product.image,
-                      fit: BoxFit.cover, // 🔥 FULL
+                      fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
                         color: const Color(0xffE0E7FF),
                         child: const Icon(
@@ -179,7 +176,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
 
-                /// FAVORITE BUTTON
+                /// NÚT YÊU THÍCH
                 Positioned(
                   top: 10,
                   right: 10,
@@ -197,18 +194,18 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
 
-                /// SALE TAG
+                /// NHÃN GIẢM GIÁ
                 if (product.salePercent != null)
                   _Tag(
-                    text: '-${product.salePercent}%',
+                    text: 'Giảm ${product.salePercent}%',
                     color: Colors.red,
                     top: 10,
                   ),
 
-                /// BEST SELLER TAG
+                /// NHÃN BÁN CHẠY
                 if (product.bestSeller)
                   _Tag(
-                    text: 'BEST',
+                    text: 'Bán chạy',
                     color: Colors.orange,
                     top: product.salePercent != null ? 38 : 10,
                   ),
@@ -217,7 +214,7 @@ class ProductCard extends StatelessWidget {
           ),
 
           /// ===============================
-          /// PRODUCT INFO
+          /// THÔNG TIN SẢN PHẨM
           /// ===============================
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
@@ -237,7 +234,7 @@ class ProductCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '\$${product.price.toStringAsFixed(0)}',
+                      '${product.price.toStringAsFixed(0)}.000₫',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -247,7 +244,7 @@ class ProductCard extends StatelessWidget {
                     if (product.oldPrice != null) ...[
                       const SizedBox(width: 6),
                       Text(
-                        '\$${product.oldPrice!.toStringAsFixed(0)}',
+                        '${product.oldPrice!.toStringAsFixed(0)}.000₫',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -267,7 +264,7 @@ class ProductCard extends StatelessWidget {
 }
 
 /// ===============================
-/// TAG WIDGET
+/// WIDGET NHÃN
 /// ===============================
 class _Tag extends StatelessWidget {
   final String text;

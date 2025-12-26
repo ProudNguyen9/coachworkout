@@ -1,5 +1,6 @@
 import 'package:coach_workout/config/routes/routes_location.dart';
 import 'package:coach_workout/utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,7 @@ class OnboardingScreen extends StatelessWidget {
             const Gap(30),
             Center(
               child: Text(
-                "Body measurements",
+                'OnboardingScreen.body_measurements'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w500,
@@ -35,14 +36,14 @@ class OnboardingScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'To recommend suitable workouts, please enter the following information:',
+                'OnboardingScreen.recommend_info'.tr(),
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
               ),
             ),
 
             NumberPickerField(
               initialValue: 39.8,
-              label: 'Weight',
+              label: 'OnboardingScreen.weight_label'.tr(),
               maxInteger: 180,
               minInteger: 35,
               unit: 'kg',
@@ -52,8 +53,8 @@ class OnboardingScreen extends StatelessWidget {
 
             NumberPickerField(
               path: 'assets/age.jpg',
-              label: "Age",
-              unit: "years",
+              label: 'OnboardingScreen.age_label'.tr(),
+              unit: "",
               minInteger: 15,
               maxInteger: 80,
               initialValue: 20,
@@ -63,7 +64,7 @@ class OnboardingScreen extends StatelessWidget {
 
             NumberPickerField(
               path: 'assets/height.jpg',
-              label: "Height",
+              label: 'OnboardingScreen.height_label'.tr(),
               unit: "cm",
               minInteger: 100,
               maxInteger: 220,
@@ -86,7 +87,7 @@ class OnboardingScreen extends StatelessWidget {
               ),
 
               child: Text(
-                'Next',
+                'OnboardingScreen.next_button'.tr(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

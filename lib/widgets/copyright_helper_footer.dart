@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class Footer extends StatelessWidget {
@@ -11,7 +12,7 @@ class Footer extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '© 2025 MyApp of hehe. All rights reserved.',
+            'Footer.copyright'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.white),
           ),
@@ -21,7 +22,7 @@ class Footer extends StatelessWidget {
               //  to do  alfter
             },
             child: Text(
-              'Need help? Contact support',
+              'Footer.need_help'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

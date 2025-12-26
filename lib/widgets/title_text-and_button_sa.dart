@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'widgets.dart';
@@ -20,7 +21,7 @@ class TitleTextAndButtonSA extends StatelessWidget {
         TextButton(
           onPressed: onPressed,
           child: Text(
-            'See All',
+            'see_all'.tr(),
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
           ),
         ),

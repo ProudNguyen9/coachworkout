@@ -1,4 +1,5 @@
 import 'package:coach_workout/utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -19,9 +20,8 @@ class _WorkoutsState extends State<Workouts> {
   void initState() {
     super.initState();
 
-    /// 🔹 Gọi load dữ liệu Supabase, chỉ chạy 1 lần duy nhất
+    /// 🔹 Load Supabase data – run once
     Future.microtask(() {
-      // ignore: use_build_context_synchronously
       final provider = context.read<GroupExerciseProvider>();
       provider.fetchBeginnerExercises(limitCount: 3);
     });
@@ -41,7 +41,7 @@ class _WorkoutsState extends State<Workouts> {
           children: [
             const Gap(19),
 
-            // 🔍 Search Field
+            /// 🔍 Search
             Center(
               child: SizedBox(
                 height: 52,
@@ -49,7 +49,7 @@ class _WorkoutsState extends State<Workouts> {
                 child: TextField(
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search),
-                    hintText: 'Find your workout...',
+                    hintText: 'workouts.search_hint'.tr(),
                     fillColor: context.colorScheme.surface,
                     focusColor: context.colorScheme.surface,
                     border: OutlineInputBorder(
@@ -62,22 +62,25 @@ class _WorkoutsState extends State<Workouts> {
 
             const Gap(10),
 
-            // 🎯 Target Area
-            const TextTile(title: 'Target Area'),
+            /// 🎯 Target Area
+            TextTile(title: 'workouts.target_area'.tr()),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: MuscleScrollRow(),
             ),
 
-            // 🏁 Weekly Challenge Banner
-            const BannerChild(
-              Title: '  Weekly Challenge',
-              TitleChild: 'Plank With Hip Twist',
+            /// 🏁 Weekly Challenge
+            BannerChild(
+              Title: 'workouts.weekly_challenge'.tr(),
+              TitleChild: 'Plank With Hip Twist', // data cố định
               path: 'assets/banner_library.png',
             ),
 
-            // 🏋️ Beginner Workout Section
-            TitleTextAndButtonSA(onPressed: () {}, title: 'Beginner Workout'),
+            /// 🏋️ Beginner Workout
+            TitleTextAndButtonSA(
+              onPressed: () {},
+              title: 'workouts.beginner_workout'.tr(),
+            ),
 
             if (isLoading)
               ListView.builder(
@@ -87,9 +90,9 @@ class _WorkoutsState extends State<Workouts> {
                 itemBuilder: (_, __) => const WorkoutSkeletonItem(),
               )
             else if (beginnerList.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(20),
-                child: Text("No workouts found 😕"),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text('workouts.no_workouts'.tr()),
               )
             else
               ListView.builder(
@@ -100,8 +103,8 @@ class _WorkoutsState extends State<Workouts> {
                   final workout = beginnerList[index];
                   return ItemListBeginner(
                     path: workout.urlThumbnail,
-                    title: workout.title,
-                    description: workout.description,
+                    title: workout.title, // ❗ DB data
+                    description: workout.description, // ❗ DB data
                     ontap: () {
                       Navigator.push(
                         context,
@@ -118,7 +121,13 @@ class _WorkoutsState extends State<Workouts> {
               ),
 
             const Gap(15),
-            TitleTextAndButtonSA(onPressed: () {}, title: 'Just For You'),
+
+            /// ❤️ Just For You
+            TitleTextAndButtonSA(
+              onPressed: () {},
+              title: 'workouts.just_for_you'.tr(),
+            ),
+
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Padding(
@@ -128,41 +137,46 @@ class _WorkoutsState extends State<Workouts> {
                     buildImageCard(
                       context,
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSI9J598TmGZgO2bHvdpw8BUkqRajVV2EqScw&s',
-                      'Workout Plan',
+                      'workouts.workout_plan'.tr(),
                     ),
                     buildImageCard(
                       context,
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdqhHRm1HgAHL9k6cyYfWCEM0M7REXUyeGyw&s',
-                      'AI Coaching',
+                      'workouts.ai_coaching'.tr(),
                     ),
                     buildImageCard(
                       context,
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxV7ToOVEGNyP05_I6kdLnxDrGwKF_mOmcqQ&s',
-                      'Nutrition',
+                      'workouts.nutrition'.tr(),
                     ),
                     buildImageCard(
                       context,
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrdOI-pFGm7VdHOcUd6oDxmu1KVtpPMRqE_A&s',
-                      'Yoga',
+                      'workouts.yoga'.tr(),
                     ),
                     buildImageCard(
                       context,
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJlgqbfsLrI7FIO0gPUoMYVde1nwCUixjxaA&s',
-                      'Cardio',
+                      'workouts.cardio'.tr(),
                     ),
                     buildImageCard(
                       context,
                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSyaV0bWwrQvU3TKjhtqMbMoXssD23mDFa2g&s',
-                      'HIIT',
+                      'workouts.hiit'.tr(),
                     ),
                   ],
                 ),
               ),
             ),
+
             const Gap(10),
 
-            // 💪 Full Body Section (phần dưới giữ nguyên)
-            TitleTextAndButtonSA(onPressed: () {}, title: 'Full Body'),
+            /// 💪 Full Body
+            TitleTextAndButtonSA(
+              onPressed: () {},
+              title: 'workouts.full_body'.tr(),
+            ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
@@ -170,12 +184,12 @@ class _WorkoutsState extends State<Workouts> {
                 children: [
                   CardTip(
                     onTap: () {},
-                    title: 'Supplement Guide...',
+                    title: 'workouts.supplement_guide'.tr(),
                     path: 'assets/fullbody1.png',
                   ),
                   CardTip(
                     onTap: () {},
-                    title: '15 Quick & Effective',
+                    title: 'workouts.quick_effective'.tr(),
                     path: 'assets/fullbody2.png',
                   ),
                 ],
@@ -188,6 +202,7 @@ class _WorkoutsState extends State<Workouts> {
   }
 }
 
+/// ================= SKELETON =================
 class WorkoutSkeletonItem extends StatelessWidget {
   const WorkoutSkeletonItem({super.key});
 
@@ -197,7 +212,6 @@ class WorkoutSkeletonItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          // thumbnail
           Container(
             width: 90,
             height: 70,
@@ -207,8 +221,6 @@ class WorkoutSkeletonItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-
-          // text
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,5 +1,6 @@
 import 'package:coach_workout/providers/tap_homehomscreen_provider.dart';
 import 'package:coach_workout/utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -35,7 +36,7 @@ class HomeScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Dashboard',
+                  'Dashboard_title'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 22,
                     fontWeight: FontWeight.w500,

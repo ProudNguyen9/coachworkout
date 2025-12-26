@@ -1,11 +1,11 @@
 import 'package:animated_floating_buttons/animated_floating_buttons.dart';
 import 'package:coach_workout/utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../widgets/widgets.dart';
 import 'screens.dart';
 
 class WorkoutLibraryScreen extends StatefulWidget {
@@ -62,7 +62,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen>
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Workout Library',
+                'workout_library.title'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w500,
@@ -80,10 +80,10 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen>
             indicatorColor: context.colorScheme.primary,
             dividerHeight: 0,
             unselectedLabelStyle: GoogleFonts.poppins(fontSize: 16),
-            tabs: const [
-              Tab(text: "Workouts"),
-              Tab(text: "Walking"),
-              Tab(text: "Shop"),
+            tabs: [
+              Tab(text: 'workout_library.tabs.workouts'.tr()),
+              Tab(text: 'workout_library.tabs.walking'.tr()),
+              Tab(text: 'workout_library.tabs.shop'.tr()),
             ],
           ),
 
@@ -129,7 +129,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen>
   }
 }
 
-/// ----- SearchDelegate giữ nguyên -----
+/// ----- SearchDelegate -----
 class MySearchDelegate extends SearchDelegate {
   final List<String> data;
   MySearchDelegate(this.data);
@@ -138,7 +138,11 @@ class MySearchDelegate extends SearchDelegate {
   List<Widget>? buildActions(BuildContext context) {
     return [
       if (query.isNotEmpty)
-        IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ""),
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () => query = "",
+          tooltip: 'common.clear'.tr(),
+        ),
     ];
   }
 
@@ -146,6 +150,7 @@ class MySearchDelegate extends SearchDelegate {
   Widget? buildLeading(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.arrow_back),
+      tooltip: 'common.back'.tr(),
       onPressed: () => close(context, null),
     );
   }
@@ -155,6 +160,7 @@ class MySearchDelegate extends SearchDelegate {
     final results = data.where(
       (e) => e.toLowerCase().contains(query.toLowerCase()),
     );
+
     return ListView(
       children: results.map((e) => ListTile(title: Text(e))).toList(),
     );
@@ -165,6 +171,7 @@ class MySearchDelegate extends SearchDelegate {
     final suggestions = data.where(
       (e) => e.toLowerCase().startsWith(query.toLowerCase()),
     );
+
     return ListView(
       children: suggestions
           .map(
@@ -179,4 +186,7 @@ class MySearchDelegate extends SearchDelegate {
           .toList(),
     );
   }
+
+  @override
+  String get searchFieldLabel => 'workout_library.search_hint'.tr();
 }

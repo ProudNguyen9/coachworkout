@@ -6,6 +6,7 @@ import 'package:coach_workout/screen/home_screen.dart';
 import 'package:coach_workout/screen/root_screen.dart';
 import 'package:coach_workout/screen/workout_library.dart';
 import 'package:confetti/confetti.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -188,8 +189,8 @@ class _WorkoutSessionState extends State<WorkoutSession> {
           ? AppBar(
               title: Text(
                 current.exerciseId == "rest"
-                    ? "Rest Time 😌"
-                    : "You’re doing great! 💪🔥",
+                    ? 'WorkoutSession.rest_time_appbar'.tr()
+                    : 'WorkoutSession.doing_great_appbar'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -239,7 +240,7 @@ class _WorkoutSessionState extends State<WorkoutSession> {
                     child: Center(
                       child: current.exerciseId == "rest"
                           ? Text(
-                              "Rest Time 😴\nTake a deep breath!",
+                              'WorkoutSession.rest_time_body'.tr(),
                               textAlign: TextAlign.center,
                               style: GoogleFonts.poppins(
                                 fontSize: 26,
@@ -315,14 +316,14 @@ class _WorkoutSessionState extends State<WorkoutSession> {
                         children: [
                           _controlButton(
                             Icons.skip_previous_rounded,
-                            "Previous",
+                            'WorkoutSession.previous'.tr(),
                             _previousVideo,
                             primary,
                           ),
                           _pauseButton(primary),
                           _controlButton(
                             Icons.skip_next_rounded,
-                            "Next",
+                            'WorkoutSession.next'.tr(),
                             _switchToNext,
                             primary,
                           ),
@@ -422,7 +423,7 @@ void _showQuitBottomSheet(BuildContext context) {
             ),
             const SizedBox(height: 12),
             Text(
-              "Are you sure you want to\nQuit Exercise?",
+              'WorkoutSession.quit_confirmation'.tr(),
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 18,
@@ -451,7 +452,7 @@ void _showQuitBottomSheet(BuildContext context) {
                   ),
                 ),
                 child: Text(
-                  "Quit",
+                  'WorkoutSession.quit_button'.tr(),
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -473,7 +474,7 @@ void _showQuitBottomSheet(BuildContext context) {
                   ),
                 ),
                 child: Text(
-                  "Close",
+                  'WorkoutSession.close_button'.tr(),
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -553,7 +554,7 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  "Workout Completed!",
+                  'CelebrationScreen.completed_title'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -562,7 +563,7 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "You did amazing 💪🔥",
+                  'CelebrationScreen.amazing_text'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     color: Colors.grey[700],
@@ -585,7 +586,7 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
                       color: Colors.white,
                     ),
                     label: Text(
-                      "Back to Home",
+                      'CelebrationScreen.back_home'.tr(),
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

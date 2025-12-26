@@ -1,4 +1,5 @@
 import 'package:coach_workout/utils/extensions.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
@@ -61,18 +62,17 @@ class YoursCoach extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔹 Phần mở đầu
+              /// ===== HEADER =====
               Text(
-                'Your Coaches',
+                'coach.title'.tr(),
                 style: GoogleFonts.poppins(
                   fontSize: 20,
-                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Get trained by the best — connect, chat, and follow your favorite coach!',
+                'coach.subtitle'.tr(),
                 style: GoogleFonts.poppins(
                   color: Colors.grey[600],
                   fontSize: 14,
@@ -80,8 +80,7 @@ class YoursCoach extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              const SizedBox(height: 12),
-
+              /// ===== YOUR COACHES =====
               ...List.generate(yourCoaches.length, (i) {
                 final c = yourCoaches[i];
                 return FadeInUp(
@@ -98,10 +97,10 @@ class YoursCoach extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // 🔹 Phần gợi ý huấn luyện viên
+              /// ===== SUGGESTED COACHES =====
               _SectionHeader(
-                title: "Coaches You May Like",
-                subtitle: "Discover new trainers and styles to explore",
+                title: 'coach.suggested_title'.tr(),
+                subtitle: 'coach.suggested_subtitle'.tr(),
               ),
               const SizedBox(height: 12),
 
@@ -127,6 +126,9 @@ class YoursCoach extends StatelessWidget {
   }
 }
 
+/// ===============================
+/// SECTION HEADER
+/// ===============================
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -139,11 +141,7 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
+          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
@@ -155,6 +153,9 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+/// ===============================
+/// COACH CARD
+/// ===============================
 class _CoachCard extends StatelessWidget {
   final double width;
   final String name;
@@ -191,10 +192,7 @@ class _CoachCard extends StatelessWidget {
       child: Column(
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(22),
-              topRight: Radius.circular(22),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
             child: Image.network(
               backgroundUrl,
               width: width,
@@ -206,6 +204,7 @@ class _CoachCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
+                /// Avatar
                 Container(
                   width: 68,
                   height: 68,
@@ -213,21 +212,18 @@ class _CoachCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
                       colors: [Color(0xFF00FF9C), Color(0xFF007BFF)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
                     ),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(3),
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(avatarUrl),
-                      radius: 30,
                     ),
                   ),
                 ),
                 const SizedBox(width: 16),
 
-                // info
+                /// Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +233,6 @@ class _CoachCard extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -249,17 +244,19 @@ class _CoachCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
+
+                      /// Actions
                       Row(
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {},
                             icon: const Icon(Icons.chat_outlined, size: 16),
-                            label: const Text("Chat"),
+                            label: Text('coach.chat'.tr()),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: context.colorScheme.secondary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
+                                horizontal: 12,
                                 vertical: 8,
                               ),
                               shape: RoundedRectangleBorder(
@@ -274,17 +271,22 @@ class _CoachCard extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) =>
-                                      const CoachProfileScreen(),
+                                      const CoachProfile_Booking_Screen(),
                                 ),
                               );
                             },
                             icon: Icon(
                               isSuggested
-                                  ? Icons.add_rounded
-                                  : Icons.favorite_border,
+                                  ? Icons
+                                        .calendar_month_rounded // Đặt ngay
+                                  : Icons.info_outline_rounded, // Thông tin
                               size: 16,
                             ),
-                            label: const Text("Profile"),
+                            label: Text(
+                              !isSuggested
+                                  ? 'coach.profile'.tr()
+                                  : 'book_now'.tr(),
+                            ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.black87,
                               side: const BorderSide(color: Colors.black26),

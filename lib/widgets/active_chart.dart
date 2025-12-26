@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class ActiveChart extends StatelessWidget {
@@ -6,6 +7,8 @@ class ActiveChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+
     return SfCartesianChart(
       primaryXAxis: CategoryAxis(
         majorGridLines: const MajorGridLines(width: 0),
@@ -20,7 +23,7 @@ class ActiveChart extends StatelessWidget {
       ),
       series: <CartesianSeries<ChartData, String>>[
         AreaSeries<ChartData, String>(
-          dataSource: _getChartData(),
+          dataSource: _getChartData(locale),
           xValueMapper: (ChartData data, _) => data.day,
           yValueMapper: (ChartData data, _) => data.value,
           borderColor: Colors.blue.shade700,
@@ -35,15 +38,18 @@ class ActiveChart extends StatelessWidget {
     );
   }
 
-  List<ChartData> _getChartData() {
-    return [
-      ChartData('Mon', 5),
-      ChartData('Tues', 25),
-      ChartData('Wed', 20),
-      ChartData('Thu', 45),
-      ChartData('Fri', 55),
-      ChartData('Sat', 80),
-    ];
+  List<ChartData> _getChartData(String locale) {
+    final now = DateTime.now();
+
+    return List.generate(6, (index) {
+      final day = now.subtract(Duration(days: 5 - index));
+      final label = DateFormat.E(locale).format(day); // auto vi/en
+      return ChartData(label, _mockValue(index));
+    });
+  }
+
+  double _mockValue(int index) {
+    return [5, 25, 20, 45, 55, 80][index].toDouble();
   }
 }
 

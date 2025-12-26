@@ -4,6 +4,7 @@ import 'package:coach_workout/data/services/supabase_service.dart';
 import 'package:coach_workout/providers/group_exercise_provider.dart';
 import 'package:coach_workout/utils/utils.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
@@ -12,7 +13,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
-
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -30,7 +30,8 @@ class WorkoutScreen extends StatefulWidget {
 
   static WorkoutScreen builder(BuildContext context, GoRouterState state) {
     final groupId = state.uri.queryParameters['id'] ?? '';
-    final groupName = state.uri.queryParameters['name'] ?? 'Workout';
+    final groupName =
+        state.uri.queryParameters['name'] ?? 'workout.default_title'.tr();
     return WorkoutScreen(groupId: groupId, groupName: groupName);
   }
 
@@ -54,9 +55,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       await folder.create(recursive: true);
     }
 
-    debugPrint("📂 Video folder: ${folder.path}");
-    debugPrint("🎬 Total items: ${items.length}");
-
     setState(() {
       isDownloading = true;
       downloadCompleted = false;
@@ -70,11 +68,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       final url = item.mediaUrl;
       final id = item.exerciseId;
 
-      debugPrint("➡️ Processing item: $id");
-      debugPrint("🔗 Video URL: $url");
-
       if (url == null || url.isEmpty) {
-        debugPrint("⚠️ Skip: empty url");
         downloadedVideos++;
         setState(() {});
         continue;
@@ -84,36 +78,18 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       final file = File(filePath);
 
       if (await file.exists()) {
-        debugPrint("✅ Already downloaded: $filePath");
         downloadedVideos++;
         setState(() {});
         continue;
       }
 
       try {
-        debugPrint("⬇️ Start downloading: $filePath");
-
-        await dio.download(
-          url,
-          filePath,
-          onReceiveProgress: (received, total) {
-            if (total != -1) {
-              final percent = (received / total * 100).toStringAsFixed(1);
-              debugPrint("📥 $id → $percent%");
-            }
-          },
-        );
-
-        debugPrint("✅ Download completed: $filePath");
-      } catch (e) {
-        debugPrint("❌ Download failed ($id): $e");
-      }
+        await dio.download(url, filePath);
+      } catch (_) {}
 
       downloadedVideos++;
       setState(() {});
     }
-
-    debugPrint("🎉 ALL VIDEOS DOWNLOADED");
 
     setState(() {
       isDownloading = false;
@@ -132,7 +108,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       body: SafeArea(
         child: Consumer<GroupExerciseProvider>(
           builder: (context, provider, _) {
-            /// fetch list
             if (provider.getItemList(widget.groupId).isEmpty &&
                 !provider.isLoading) {
               Future.microtask(() {
@@ -140,7 +115,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               });
             }
 
-            /// auto download
             if (!provider.isLoading &&
                 provider.getItemList(widget.groupId).isNotEmpty &&
                 !isDownloading &&
@@ -153,13 +127,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             return Column(
               children: [
                 _buildHeader(provider),
-
                 const Gap(20),
-
-                /// ⬇️ ĐANG TẢI VIDEO
                 if (isDownloading) _buildDownloadProgress(),
-
-                /// ✅ TẢI XONG → HIỂN THỊ DANH SÁCH
                 if (downloadCompleted)
                   Expanded(
                     child: ListView.builder(
@@ -183,7 +152,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           reps: item.repetitions,
                           time: item.durationSeconds,
                           description: item.description ?? "",
-                          imageUrl: item.mediaUrl,
                           exerciseId: item.exerciseId,
                         );
                       },
@@ -209,7 +177,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         color: context.colorScheme.primary,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -243,7 +210,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   Colors.green,
                 ),
                 const Gap(10),
-                _tag(Icons.fitness_center, "Any Equipment", Colors.orange),
+                _tag(
+                  Icons.fitness_center,
+                  "workout.any_equipment".tr(),
+                  Colors.orange,
+                ),
               ],
             ),
           ],
@@ -252,39 +223,28 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
-  /// ================= DOWNLOAD UI =================
+  /// ================= DOWNLOAD =================
   Widget _buildDownloadProgress() {
-    final double progress = totalVideos == 0
-        ? 0
-        : downloadedVideos / totalVideos;
-    final int percent = (progress * 100).round();
+    final progress = totalVideos == 0 ? 0.0 : downloadedVideos / totalVideos;
 
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Preparing your workout 💪",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          Text(
+            "workout.preparing_title".tr(),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "Please wait while we get everything ready for you...",
-            style: TextStyle(color: Colors.grey),
+          Text(
+            "workout.preparing_desc".tr(),
+            style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 14),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: LinearProgressIndicator(minHeight: 12, value: progress),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            "$percent%",
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
+            child: LinearProgressIndicator(value: progress, minHeight: 12),
           ),
         ],
       ),
@@ -299,8 +259,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     required int reps,
     required int? time,
     required String description,
-    required String? imageUrl,
-    required String exerciseId, // 👈 THÊM
+    required String exerciseId,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -330,7 +289,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       ),
                     ),
                     Text(
-                      "$sets sets x $reps reps",
+                      "$sets ${'workout.sets'.tr()} x $reps ${'workout.reps'.tr()}",
                       style: const TextStyle(color: Colors.grey),
                     ),
                     TextButton(
@@ -339,12 +298,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           context,
                           title,
                           description,
-                          exerciseId, // 👈 TRUYỀN ID
+                          exerciseId,
                           time,
-                          widget.groupId, // 👈 TRUYỀN GROUP
+                          widget.groupId,
                         );
                       },
-                      child: const Text("View Tutorial"),
+                      child: Text("workout.view_tutorial".tr()),
                     ),
                   ],
                 ),
@@ -385,7 +344,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               showMultiDatePickerBottomSheet(context, widget.groupId);
             },
             backgroundColor: context.colorScheme.primary,
-            label: const Text("Add to Schedule"),
+            label: Text("workout.add_to_schedule".tr()),
           ),
           const Gap(10),
           FloatingActionButton.extended(
@@ -403,7 +362,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               );
             },
             backgroundColor: context.colorScheme.primary,
-            label: const Text("Start Now"),
+            label: Text("workout.start_now".tr()),
           ),
         ],
       ),

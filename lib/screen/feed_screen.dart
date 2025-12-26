@@ -17,7 +17,7 @@ class _FeedScreenState extends State<FeedScreen> {
       'id': 1,
       'user': 'Nguyen Hung',
       'avatar': 'https://i.pravatar.cc/150?img=10',
-      'content': 'Morning workout done 💪',
+      'content': 'Một ngày tập luyện đầy năng lượng 💪',
       'media':
           'https://images.unsplash.com/photo-1554284126-aa88f22d8b74?w=800',
       'likes': 12,
@@ -345,18 +345,18 @@ class _FeedScreenState extends State<FeedScreen> {
         elevation: 0.8,
         centerTitle: true,
         title: const Text(
-          "Community",
+          "Cộng đồng ",
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w700,
             fontSize: 20,
             letterSpacing: 0.3,
           ),
-        ),  
+        ),
 
         actions: [
           IconButton(
-            tooltip: "Create Post",
+            tooltip: "Đăng bài mới ",
             style: IconButton.styleFrom(
               backgroundColor: Colors.grey.shade100,
               shape: RoundedRectangleBorder(
@@ -467,7 +467,7 @@ class _FeedScreenState extends State<FeedScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              "${(post['comments'] as List?)?.length ?? 0} comments",
+                              "${(post['Bình luận'] as List?)?.length ?? 0} Bình luận",
                               style: TextStyle(color: Colors.grey[700]),
                             ),
                           ],

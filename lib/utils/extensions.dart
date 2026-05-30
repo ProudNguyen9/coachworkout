@@ -6,3 +6,4 @@ extension BuildContextExtensions on BuildContext {
   ColorScheme get colorScheme => _theme.colorScheme;
   Size get deviceSize => MediaQuery.sizeOf(this);
 }
+

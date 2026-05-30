@@ -23,3 +23,5 @@ class RoutesNotifier with ChangeNotifier {
 
   late final GoRouter router = getAppRoutes(navigationKey);
 }
+
+

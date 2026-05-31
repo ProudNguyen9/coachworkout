@@ -1,5 +1,18 @@
 import 'package:uuid/uuid.dart';
 
+const String _oldSupabaseStorageBaseUrl =
+    'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public';
+const String _newSupabaseStorageBaseUrl =
+    'https://kqlonwcsjrirgmeddoze.supabase.co/storage/v1/object/public';
+
+String? _normalizeStorageUrl(String? url) {
+  if (url == null || url.isEmpty) return url;
+  return url.replaceFirst(
+    _oldSupabaseStorageBaseUrl,
+    _newSupabaseStorageBaseUrl,
+  );
+}
+
 class GroupExercise {
   final String id;
   final String type; // ví dụ: "beginner", "intermediate", "advanced"
@@ -31,7 +44,9 @@ class GroupExercise {
           : null,
       goal: json['goal'] ?? '',
       // 👇 xử lý cả hai khả năng key (đúng & sai chính tả)
-      urlThumbnail: json['url_thumbnail'] ?? json['url_thumnail'] ?? '',
+      urlThumbnail:
+          _normalizeStorageUrl(json['url_thumbnail'] ?? json['url_thumnail']) ??
+          '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       level: json['level'] ?? '',
@@ -46,7 +61,7 @@ class GroupExercise {
       'created_at': createdAt?.toIso8601String(),
       'goal': goal,
       // Giữ đúng chuẩn "url_thumbnail"
-      'url_thumbnail': urlThumbnail,
+      'url_thumbnail': _normalizeStorageUrl(urlThumbnail),
       'title': title,
       'description': description,
       'level': level,
@@ -74,5 +89,3 @@ class GroupExercise {
     );
   }
 }
-
-

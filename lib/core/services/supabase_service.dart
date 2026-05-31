@@ -72,7 +72,7 @@ class SupabaseService {
     required List<DateTime> selectedDays,
   }) async {
     if (selectedDays.isEmpty) throw Exception('No days selected');
- final user = _client.auth.currentUser;
+    final user = _client.auth.currentUser;
     if (user == null) {
       throw Exception('❌ No logged-in user found');
     }
@@ -137,6 +137,177 @@ class SupabaseService {
 
     print('✅ Created user training schedule successfully!');
   }
+
+  Future<List<Map<String, dynamic>>> getMyTrainingSchedules() async {
+    final user = _client.auth.currentUser;
+    if (user == null) {
+      throw Exception('❌ No logged-in user found');
+    }
+
+    final schedulesRaw = await _client
+        .from('user_schedules')
+        .select('id, course_id, start_date, is_active, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', ascending: false);
+
+    final schedules = (schedulesRaw as List)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+
+    if (schedules.isEmpty) return [];
+
+    final courseIds = schedules
+        .map((schedule) => schedule['course_id'])
+        .where((id) => id != null)
+        .toSet()
+        .toList();
+    final scheduleIds = schedules
+        .map((schedule) => schedule['id'])
+        .where((id) => id != null)
+        .toSet()
+        .toList();
+
+    final coursesRaw = courseIds.isEmpty
+        ? <dynamic>[]
+        : await _client
+              .from('training_courses')
+              .select(
+                'id, title, description, level, duration_days, goal, type',
+              )
+              .inFilter('id', courseIds);
+
+    final daysRaw = scheduleIds.isEmpty
+        ? <dynamic>[]
+        : await _client
+              .from('user_schedule_days')
+              .select(
+                'id, schedule_id, planned_date, course_day_number, completed',
+              )
+              .inFilter('schedule_id', scheduleIds)
+              .order('planned_date', ascending: true);
+
+    final coursesById = <dynamic, Map<String, dynamic>>{
+      for (final course in coursesRaw)
+        course['id']: Map<String, dynamic>.from(course),
+    };
+
+    final daysByScheduleId = <dynamic, List<Map<String, dynamic>>>{};
+    for (final day in daysRaw) {
+      final mappedDay = Map<String, dynamic>.from(day);
+      final scheduleId = mappedDay['schedule_id'];
+      daysByScheduleId.putIfAbsent(scheduleId, () => []).add(mappedDay);
+    }
+
+    return schedules.map((schedule) {
+      final scheduleId = schedule['id'];
+      return {
+        ...schedule,
+        'course': coursesById[schedule['course_id']],
+        'days': daysByScheduleId[scheduleId] ?? <Map<String, dynamic>>[],
+      };
+    }).toList();
+  }
+
+  String _dateKey(DateTime date) {
+    final local = date.toLocal();
+    final year = local.year.toString().padLeft(4, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
+  Future<void> markTodayScheduleDayCompleted() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    final todayKey = _dateKey(DateTime.now());
+
+    final schedulesRaw = await _client
+        .from('user_schedules')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+
+    final scheduleIds = (schedulesRaw as List)
+        .map((schedule) => (schedule as Map)['id'])
+        .where((id) => id != null)
+        .toList();
+
+    if (scheduleIds.isEmpty) return;
+
+    final daysRaw = await _client
+        .from('user_schedule_days')
+        .select('id, planned_date')
+        .inFilter('schedule_id', scheduleIds);
+
+    final todayDayIds = (daysRaw as List)
+        .map((day) => Map<String, dynamic>.from(day as Map))
+        .where((day) {
+          final plannedDate = DateTime.tryParse('${day['planned_date']}');
+          return plannedDate != null && _dateKey(plannedDate) == todayKey;
+        })
+        .map((day) => day['id'])
+        .where((id) => id != null)
+        .toList();
+
+    if (todayDayIds.isEmpty) return;
+
+    await _client
+        .from('user_schedule_days')
+        .update({'completed': true})
+        .inFilter('id', todayDayIds);
+  }
+
+  Future<Map<String, Set<String>>> getMyCalendarTrainingStatus() async {
+    final schedules = await getMyTrainingSchedules();
+    final plannedKeys = <String>{};
+    final completedKeys = <String>{};
+    final restKeys = <String>{};
+
+    for (final schedule in schedules) {
+      final days = (schedule['days'] as List? ?? [])
+          .map((day) => Map<String, dynamic>.from(day as Map))
+          .toList();
+
+      DateTime? firstDate;
+      DateTime? lastDate;
+
+      for (final day in days) {
+        final plannedDate = DateTime.tryParse('${day['planned_date']}');
+        if (plannedDate == null) continue;
+
+        final dayKey = _dateKey(plannedDate);
+        plannedKeys.add(dayKey);
+
+        if (day['completed'] == true) {
+          completedKeys.add(dayKey);
+        }
+
+        if (firstDate == null || plannedDate.isBefore(firstDate)) {
+          firstDate = plannedDate;
+        }
+        if (lastDate == null || plannedDate.isAfter(lastDate)) {
+          lastDate = plannedDate;
+        }
+      }
+
+      if (firstDate == null || lastDate == null) continue;
+
+      var cursor = DateTime(firstDate.year, firstDate.month, firstDate.day);
+      final end = DateTime(lastDate.year, lastDate.month, lastDate.day);
+      while (!cursor.isAfter(end)) {
+        final dayKey = _dateKey(cursor);
+        if (!plannedKeys.contains(dayKey)) {
+          restKeys.add(dayKey);
+        }
+        cursor = cursor.add(const Duration(days: 1));
+      }
+    }
+
+    return {
+      'planned': plannedKeys,
+      'completed': completedKeys,
+      'rest': restKeys,
+    };
+  }
 }
-
-

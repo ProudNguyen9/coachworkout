@@ -1,6 +1,19 @@
+const String _oldSupabaseStorageBaseUrl =
+    'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public';
+const String _newSupabaseStorageBaseUrl =
+    'https://kqlonwcsjrirgmeddoze.supabase.co/storage/v1/object/public';
+
+String? _normalizeStorageUrl(String? url) {
+  if (url == null || url.isEmpty) return url;
+  return url.replaceFirst(
+    _oldSupabaseStorageBaseUrl,
+    _newSupabaseStorageBaseUrl,
+  );
+}
+
 class GroupExerciseItem {
   final String itemId;
-  final int ? orderNumber;
+  final int? orderNumber;
   final int sets;
   final int repetitions;
   final int durationSeconds;
@@ -37,7 +50,7 @@ class GroupExerciseItem {
       caloriesPerRep: (json['calories_per_rep'] != null)
           ? (json['calories_per_rep'] as num).toDouble()
           : null,
-      mediaUrl: json['media_url'] as String?,
+      mediaUrl: _normalizeStorageUrl(json['media_url'] as String?),
     );
   }
 
@@ -53,7 +66,7 @@ class GroupExerciseItem {
       'exercise_name': exerciseName,
       'description': description,
       'calories_per_rep': caloriesPerRep,
-      'media_url': mediaUrl,
+      'media_url': _normalizeStorageUrl(mediaUrl),
     };
   }
 
@@ -63,5 +76,3 @@ class GroupExerciseItem {
     return 'GroupExerciseItem($exerciseName - $sets sets x $repetitions reps)';
   }
 }
-
-

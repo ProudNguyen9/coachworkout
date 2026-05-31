@@ -1,5 +1,7 @@
+import 'package:coach_workout/config/routes/routes_location.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:coach_workout/features/chat/presentation/screens/conversation_list/conversation_list_screen.dart';
 import 'package:coach_workout/features/feed/presentation/screens/feed/feed_screen.dart';
@@ -20,9 +22,52 @@ class RootScreen extends StatefulWidget {
 
 class _RootScreenState extends State<RootScreen> {
   int _selectedIndex = 0;
+  bool _checkingProfile = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _redirectIfProfileMissing();
+  }
+
+  Future<void> _redirectIfProfileMissing() async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    if (user == null) {
+      if (mounted) context.go(RouteLocation.login);
+      return;
+    }
+
+    try {
+      final profile = await supabase
+          .from('users')
+          .select('id, name')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (!mounted) return;
+
+      if (profile == null ||
+          profile['name'] == null ||
+          '${profile['name']}'.trim().isEmpty) {
+        context.go(RouteLocation.onboarding);
+        return;
+      }
+    } catch (_) {
+      if (!mounted) return;
+    }
+
+    if (mounted) {
+      setState(() => _checkingProfile = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_checkingProfile) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -50,5 +95,3 @@ class _RootScreenState extends State<RootScreen> {
     );
   }
 }
-
-

@@ -1,86 +1,129 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract final class AppTheme {
-  static final ThemeData light = FlexThemeData.light(
-    colors: _cyanScheme,
-
-    /// 🔧 FIX SURFACE
-    surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-    blendLevel: 6,
-
-    scaffoldBackground: Colors.white,
-    surface: Colors.white,
-    background: Colors.white,
-
-    appBarStyle: FlexAppBarStyle.primary,
-    appBarOpacity: 0.95,
-    appBarElevation: 0,
-    transparentStatusBar: true,
-    tabBarStyle: FlexTabBarStyle.forBackground,
-
+  static final ThemeData light = ThemeData(
+    useMaterial3: true,
+    colorScheme: _lightColorScheme,
+    scaffoldBackgroundColor: Colors.white,
     fontFamily: GoogleFonts.montserrat().fontFamily,
-    visualDensity: FlexColorScheme.comfortablePlatformDensity,
-
-    subThemesData: const FlexSubThemesData(
-      useTextTheme: true,
-      blendOnColors: true,
-      blendTextTheme: true,
-      fabUseShape: true,
-      bottomNavigationBarElevation: 0,
-      navigationBarMutedUnselectedIcon: true,
-      inputDecoratorIsFilled: true,
-      inputDecoratorBorderType: FlexInputBorderType.outline,
-      inputDecoratorUnfocusedHasBorder: true,
-      popupMenuOpacity: 0.95,
-      tooltipRadius: 6,
-      tooltipOpacity: 0.9,
-      snackBarElevation: 6,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: _primary,
+      foregroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
     ),
+    tabBarTheme: const TabBarThemeData(
+      labelColor: _primary,
+      unselectedLabelColor: Colors.grey,
+      indicatorColor: _primary,
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      shape: CircleBorder(),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(elevation: 0),
+    navigationBarTheme: NavigationBarThemeData(
+      indicatorColor: _primary.withValues(alpha: 0.14),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: _primary);
+        }
+        return const IconThemeData(color: Colors.grey);
+      }),
+    ),
+    inputDecorationTheme: OutlineInputBorderTheme.inputDecorationTheme,
+    popupMenuTheme: const PopupMenuThemeData(color: Colors.white),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(6),
+      ),
+    ),
+    snackBarTheme: const SnackBarThemeData(elevation: 6),
   );
 
-  static final ThemeData dark = FlexThemeData.dark(
-    colors: _cyanScheme,
-
-    surfaceMode: FlexSurfaceMode.highScaffoldLowSurfacesVariantDialog,
-    blendLevel: 30,
-
-    appBarStyle: FlexAppBarStyle.background,
-    appBarOpacity: 0.90,
-    appBarElevation: 0,
-    transparentStatusBar: true,
-    tabBarStyle: FlexTabBarStyle.forBackground,
-
+  static final ThemeData dark = ThemeData(
+    useMaterial3: true,
+    colorScheme: _darkColorScheme,
     fontFamily: GoogleFonts.montserrat().fontFamily,
-    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      centerTitle: true,
+      backgroundColor: Color(0xFF101820),
+      foregroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+    ),
+    tabBarTheme: const TabBarThemeData(
+      labelColor: _secondary,
+      unselectedLabelColor: Colors.grey,
+      indicatorColor: _secondary,
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      shape: CircleBorder(),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(elevation: 0),
+    navigationBarTheme: NavigationBarThemeData(
+      indicatorColor: _secondary.withValues(alpha: 0.18),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: _secondary);
+        }
+        return const IconThemeData(color: Colors.grey);
+      }),
+    ),
+    inputDecorationTheme: OutlineInputBorderTheme.inputDecorationTheme,
+    popupMenuTheme: const PopupMenuThemeData(color: Color(0xFF101820)),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: Colors.white70,
+        borderRadius: BorderRadius.circular(6),
+      ),
+    ),
+    snackBarTheme: const SnackBarThemeData(elevation: 6),
+  );
+}
 
-    subThemesData: const FlexSubThemesData(
-      useTextTheme: true,
-      blendOnColors: false,
-      blendTextTheme: true,
-      fabUseShape: true,
-      bottomNavigationBarElevation: 0,
-      navigationBarMutedUnselectedIcon: true,
-      inputDecoratorIsFilled: true,
-      inputDecoratorBorderType: FlexInputBorderType.outline,
-      inputDecoratorUnfocusedHasBorder: true,
-      popupMenuOpacity: 0.90,
-      tooltipRadius: 6,
-      tooltipOpacity: 0.9,
-      snackBarElevation: 6,
+abstract final class OutlineInputBorderTheme {
+  static InputDecorationTheme get inputDecorationTheme => InputDecorationTheme(
+    filled: true,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.grey),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: _primary, width: 2),
     ),
   );
 }
 
-/// 🎨 CYAN SCHEME (giữ nguyên)
-const FlexSchemeColor _cyanScheme = FlexSchemeColor(
-  primary: Color(0xFF00B5D8),
-  primaryContainer: Color(0xFF0097A7),
-  secondary: Color(0xFF26C6DA),
-  secondaryContainer: Color(0xFFB3A0FF),
-  tertiary: Color(0xFF2979FF),
-  tertiaryContainer: Color(0xFF1565C0),
+const Color _primary = Color(0xFF00B5D8);
+const Color _primaryContainer = Color(0xFF0097A7);
+const Color _secondary = Color(0xFF26C6DA);
+const Color _secondaryContainer = Color(0xFFB3A0FF);
+const Color _tertiary = Color(0xFF2979FF);
+const Color _tertiaryContainer = Color(0xFF1565C0);
+
+const ColorScheme _lightColorScheme = ColorScheme.light(
+  primary: _primary,
+  primaryContainer: _primaryContainer,
+  secondary: _secondary,
+  secondaryContainer: _secondaryContainer,
+  tertiary: _tertiary,
+  tertiaryContainer: _tertiaryContainer,
+  surface: Colors.white,
 );
 
-
+const ColorScheme _darkColorScheme = ColorScheme.dark(
+  primary: _primary,
+  primaryContainer: _primaryContainer,
+  secondary: _secondary,
+  secondaryContainer: _secondaryContainer,
+  tertiary: _tertiary,
+  tertiaryContainer: _tertiaryContainer,
+  surface: Color(0xFF101820),
+);

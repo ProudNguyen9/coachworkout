@@ -15,7 +15,7 @@ GoRouter getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
       GoRoute(
         path: RouteLocation.home,
         parentNavigatorKey: navigatorKey,
-        builder: HomeScreen.builder,
+        redirect: (context, state) => RouteLocation.root,
       ),
       GoRoute(
         path: RouteLocation.login,
@@ -98,13 +98,13 @@ GoRouter getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
       final isAtLogin = state.matchedLocation == RouteLocation.login;
       final isAtCallback = state.matchedLocation == '/login-callback';
 
-      // 🔹 Nếu Supabase trả về callback → bỏ qua not found và về home luôn
-      if (isAtCallback && loggedIn) return RouteLocation.root;
+      // 🔹 Nếu Supabase trả về callback → vào onboarding để nhập/lưu thông tin ban đầu
+      if (isAtCallback && loggedIn) return RouteLocation.onboarding;
 
       // 🔹 Nếu chưa login mà đang ở trang khác → quay về login
       if (!loggedIn && !isAtLogin) return RouteLocation.login;
 
-      // 🔹 Nếu đã login mà vẫn ở login → chuyển qua home
+      // 🔹 Nếu đã login mà vẫn ở login → chuyển qua onboarding/root theo trạng thái hồ sơ
       if (loggedIn && isAtLogin) return RouteLocation.root;
 
       return null;
@@ -129,5 +129,3 @@ GoRouter getAppRoutes(GlobalKey<NavigatorState> navigatorKey) {
     // },
   );
 }
-
-

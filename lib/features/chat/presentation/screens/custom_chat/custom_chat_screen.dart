@@ -14,7 +14,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lottie/lottie.dart'; // Thêm dependency: lottie: ^3.1.2 cho animation loading
 
 class CustomChatScreenAI extends StatefulWidget {
   const CustomChatScreenAI({super.key});
@@ -40,18 +39,16 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
   // ==============================
   String poseUrl = "http://192.168.2.9:8000/analyze_pose";
 
-  final String supabaseUrl = "https://zsqeewnrycesouhunxxk.supabase.co";
-  final String supabaseKey =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWVld25yeWNlc291aHVueHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3Mjc2NDMsImV4cCI6MjA3NjMwMzY0M30.NT9XbVC0astMhOuqxZtqv03Nh4t3c1eV2uo6b0AY5Wg";
+  final String supabaseUrl = "https://kqlonwcsjrirgmeddoze.supabase.co";
+  final String supabaseKey = "sb_publishable_-HaWoAEZzjAwxwSKBQgqKA_RqAvCgnI";
   final String supabaseBucket = "AIserver";
 
   // ==============================
-  // 🔹 Gemini API Config
+  // 🔹 OpenAI Compatible API Config
   // ==============================
-  final String geminiKeyFallback = "AIzaSyD2a9ILxxmHspCw57Wrbl_DbRG5wS471wo";
-  String geminiKeyText = ""; // Thêm key mới của bạn ở đây!
-
-  final List<String> geminiModels = ["gemini-2.5-flash", "gemini-2.5-pro"];
+  final String aiBaseUrl = "https://routerapi.vovantin.online/v1";
+  final String aiApiKey = "sk-YixKe9PPmENYErYcpJQuB1wN0OlYJnW8LOAhnQk00CO36cZY";
+  final String aiModel = "gpt-5.5";
 
   // Modern Color Palette (Cyan-inspired: Light Cyan, Blue, White)
   static const Color primaryColor = Color(0xFF26C6DA); // Cyan mới cho fitness
@@ -182,7 +179,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
         "timestamp": DateTime.now(),
       });
       _textController.clear();
-      isLoading = selectedImage != null;
+      isLoading = true;
     });
     _scrollToBottom();
 
@@ -196,7 +193,7 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
             "timestamp": DateTime.now(),
           });
         });
-        final reply = await _callGeminiAPIWithRetry(text);
+        final reply = await _callOpenAICompatibleAPI(text);
         setState(() {
           messages.removeWhere(
             (m) => m["text"]?.toString().contains("Đang phản hồi") ?? false,
@@ -241,6 +238,19 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
         });
       }
     } catch (e) {
+      setState(() {
+        messages.removeWhere((m) {
+          final messageText = m["text"]?.toString() ?? '';
+          return messageText.contains("Đang phản hồi") ||
+              messageText.contains("Đang phân tích");
+        });
+        messages.add({
+          "id": uuid.v4(),
+          "sender": "ai",
+          "text": "⚠️ Lỗi AI: $e",
+          "timestamp": DateTime.now(),
+        });
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("⚠️ Lỗi AI: $e"), backgroundColor: errorColor),
       );
@@ -254,85 +264,72 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
   }
 
   // =====================================================
-  // 🔹 Gemini API (giữ nguyên, nhưng ràng buộc chặt hơn)
+  // 🔹 OpenAI Compatible API
   // =====================================================
-  Future<String> _callGeminiAPIWithRetry(String prompt) async {
-    final activeKey = geminiKeyText.isNotEmpty
-        ? geminiKeyText
-        : geminiKeyFallback;
+  Future<String> _callOpenAICompatibleAPI(String prompt) async {
+    final systemPrompt = '''
+Bạn là AI Coach cá nhân trong ứng dụng tập luyện.
 
-    for (final model in geminiModels) {
-      try {
-        final result = await _callGeminiAPI(prompt, model, activeKey);
-        if (result.isNotEmpty) return result;
-      } catch (e) {
-        // Đã tắt debugPrint - Không in log lỗi model nữa
-        if (e.toString().contains("404") ||
-            e.toString().contains("429") ||
-            e.toString().contains("503")) {
-          await Future.delayed(const Duration(seconds: 1));
-          continue;
-        } else {
-          rethrow;
-        }
-      }
-    }
-    throw Exception("🚫 Tất cả model Gemini đều lỗi hoặc quá tải!");
-  }
+PHẠM VI ĐƯỢC TRẢ LỜI:
+1. Lịch tập, bài tập, kỹ thuật tập, set/reps/thời gian nghỉ.
+2. Gym, fitness, cardio, HIIT, yoga, pilates, giãn cơ.
+3. Dinh dưỡng thể thao: calo, macro, thực đơn, meal prep, tăng cơ/giảm mỡ.
+4. Phục hồi sau tập: đau cơ nhẹ, nghỉ ngơi, ngủ, warm-up/cool-down.
+5. Lập kế hoạch theo mục tiêu: giảm cân, tăng cơ, giữ dáng, sức bền.
+6. Phân tích ảnh/video tư thế tập nếu người dùng gửi nội dung liên quan tập luyện.
 
-  Future<String> _callGeminiAPI(
-    String prompt,
-    String model,
-    String apiKey,
-  ) async {
-    final url =
-        "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey";
+RÀNG BUỘC AN TOÀN:
+- Không chẩn đoán bệnh, không kê thuốc, không thay bác sĩ/chuyên gia y tế.
+- Với đau dữ dội, chấn thương nặng, chóng mặt, đau ngực, khó thở: khuyên dừng tập và đi khám.
+- Không trả lời chủ đề ngoài fitness/dinh dưỡng/phục hồi. Nếu ngoài phạm vi, trả lời đúng 1 câu:
+"Mình chỉ hỗ trợ về tập luyện, dinh dưỡng và phục hồi trong thể thao nhé."
 
-    final wrappedPrompt =
-        '''
-Bạn là một huấn luyện viên cá nhân (Coach AI) CHUYÊN SÂU.
-
-🚫 RÀNG BUỘC NGHIÊM NGẶT: CHỈ trả lời nếu câu hỏi HOÀN TOÀN LIÊN QUAN đến MỘT trong các chủ đề sau:
-1. Gym, thể hình, fitness (tập tạ, bài tập cơ bắp cụ thể)
-2. Yoga, pilates, giãn cơ, thiền (tư thế, chuỗi bài)
-3. Dinh dưỡng, chế độ ăn, meal plan (calo, macro, công thức ăn)
-4. Phục hồi chấn thương, đau cơ, phục hồi sau tập (bài tập rehab, nghỉ ngơi)
-5. Giảm cân, tăng cơ, cardio, sức bền (kế hoạch tập luyện, theo dõi tiến độ)
-
-Nếu câu hỏi KHÔNG TRỰC TIẾP liên quan ĐẾN BẤT KỲ chủ đề nào ở trên (ví dụ: thời tiết, công nghệ, chuyện cá nhân, y tế chung), HÃY TỪ CHỐI NGAY LẬP TỨC với câu trả lời ĐÚNG NGẮN GỌN:
-"Tôi chỉ hỗ trợ chuyên sâu về gym, fitness, yoga, dinh dưỡng và phục hồi. Hãy hỏi về những chủ đề đó nhé! 💪"
-
-Yêu cầu BẮT BUỘC:
-- Trả lời SIÊU NGẮN GỌN: Tối đa 150 từ, tập trung vào LỢI ÍCH + HÀNH ĐỘNG CỤ THỂ.
-- KHÔNG dùng emoji trừ khi minh họa bài tập (tối đa 1-2).
-- KHÔNG lan man, không giới thiệu bản thân, không hỏi ngược.
-- Dùng ngôn ngữ đơn giản, dễ hiểu cho người mới.
-
-Câu hỏi người dùng: $prompt
+CÁCH TRẢ LỜI:
+- Tiếng Việt, thân thiện, dễ hiểu cho người mới.
+- Ngắn gọn 3-6 ý, ưu tiên hành động cụ thể.
+- Nếu câu hỏi thiếu thông tin, vẫn đưa gợi ý an toàn chung và nói người dùng có thể bổ sung mục tiêu/cân nặng/thời gian tập.
+- Không lan man, không tự giới thiệu, không dùng quá 2 emoji.
 ''';
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "contents": [
-          {
-            "parts": [
-              {"text": wrappedPrompt},
-            ],
-          },
-        ],
-      }),
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $aiApiKey",
+    };
+    final body = jsonEncode({
+      "model": aiModel,
+      "messages": [
+        {"role": "system", "content": systemPrompt},
+        {"role": "user", "content": prompt},
+      ],
+      "temperature": 0.4,
+      "max_tokens": 350,
+    });
+
+    var response = await http.post(
+      Uri.parse("$aiBaseUrl/chat/completions"),
+      headers: headers,
+      body: body,
     );
+
+    if (response.statusCode == 308 ||
+        response.statusCode == 301 ||
+        response.statusCode == 302) {
+      final redirectUrl = response.headers['location'];
+      if (redirectUrl != null && redirectUrl.isNotEmpty) {
+        response = await http.post(
+          Uri.parse(redirectUrl),
+          headers: headers,
+          body: body,
+        );
+      }
+    }
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data["candidates"]?[0]?["content"]?["parts"]?[0]?["text"] ??
-          "Không có phản hồi từ Gemini.";
+      return data["choices"]?[0]?["message"]?["content"] ??
+          "Không có phản hồi từ AI.";
     } else {
-      throw Exception(
-        "Gemini API lỗi ${response.statusCode}: ${response.body}",
-      );
+      throw Exception("AI API lỗi ${response.statusCode}: ${response.body}");
     }
   }
 
@@ -621,18 +618,15 @@ Câu hỏi người dùng: $prompt
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: Lottie.asset(
-                      'assets/typing.json', // Nếu chưa có, thay bằng CircularProgressIndicator()
-                      controller: _typingController,
-                      onLoaded: (composition) {
-                        _typingController.duration = composition.duration;
-                      },
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: primaryColor,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   const Text(
                     'Đang suy nghĩ...',
                     style: TextStyle(color: Colors.black54),
@@ -688,7 +682,12 @@ Câu hỏi người dùng: $prompt
                 ),
                 child: TextField(
                   controller: _textController,
+                  enabled: !isLoading,
                   textCapitalization: TextCapitalization.sentences,
+                  onChanged: (_) => setState(() {}),
+                  onSubmitted: (_) {
+                    if (!isLoading) _sendMessage();
+                  },
                   decoration: const InputDecoration(
                     hintText: "Hỏi Coach AI về fitness, yoga, dinh dưỡng...",
                     hintStyle: TextStyle(color: Colors.grey),
@@ -703,25 +702,38 @@ Câu hỏi người dùng: $prompt
             ),
             const SizedBox(width: 8),
             // Send Button with animation
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                color:
-                    _textController.text.trim().isNotEmpty ||
-                        selectedImage != null
-                    ? primaryColor
-                    : Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white),
-                onPressed:
+            AnimatedBuilder(
+              animation: _textController,
+              builder: (context, _) {
+                final canSend =
+                    !isLoading &&
                     (_textController.text.trim().isNotEmpty ||
-                        selectedImage != null)
-                    ? _sendMessage
-                    : null,
-                style: IconButton.styleFrom(padding: const EdgeInsets.all(12)),
-              ),
+                        selectedImage != null);
+
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    color: canSend ? primaryColor : Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: IconButton(
+                    icon: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.send, color: Colors.white),
+                    onPressed: canSend ? _sendMessage : null,
+                    style: IconButton.styleFrom(
+                      padding: const EdgeInsets.all(12),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -796,6 +808,11 @@ Câu hỏi người dùng: $prompt
       home: Scaffold(
         backgroundColor: surfaceColor,
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Quay lại',
+          ),
           title: Row(
             children: [
               Container(
@@ -824,7 +841,6 @@ Câu hỏi người dùng: $prompt
                       color: Colors.black87,
                     ),
                   ),
-                 
                 ],
               ),
             ],
@@ -840,13 +856,6 @@ Câu hỏi người dùng: $prompt
               ),
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: _showSettingsDialog,
-              tooltip: 'Cài đặt',
-            ),
-          ],
         ),
         body: Column(
           children: [
@@ -874,5 +883,3 @@ Câu hỏi người dùng: $prompt
     );
   }
 }
-
-

@@ -8,10 +8,19 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:coach_workout/widgets/widgets.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   static OnboardingScreen builder(BuildContext context, GoRouterState state) =>
-      OnboardingScreen();
+      const OnboardingScreen();
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  double weight = 39.8;
+  double age = 20;
+  double height = 170.5;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +56,7 @@ class OnboardingScreen extends StatelessWidget {
               maxInteger: 180,
               minInteger: 35,
               unit: 'kg',
-              onChanged: (value) {},
+              onChanged: (value) => weight = value,
               path: 'assets/weight.jpg',
             ),
 
@@ -59,7 +68,7 @@ class OnboardingScreen extends StatelessWidget {
               maxInteger: 80,
               initialValue: 20,
               allowDecimal: false,
-              onChanged: (value) {},
+              onChanged: (value) => age = value,
             ),
 
             NumberPickerField(
@@ -70,12 +79,14 @@ class OnboardingScreen extends StatelessWidget {
               maxInteger: 220,
               initialValue: 170.5,
               allowDecimal: false,
-              onChanged: (v) {},
+              onChanged: (value) => height = value,
             ),
             const Gap(5),
             ElevatedButton(
               onPressed: () {
-                context.go(RouteLocation.profilesetup);
+                context.go(
+                  '${RouteLocation.profilesetup}?weight=$weight&age=${age.toInt()}&height=$height',
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.cyan[600],
@@ -101,5 +112,3 @@ class OnboardingScreen extends StatelessWidget {
     );
   }
 }
-
-

@@ -78,7 +78,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   'id': DateTime.now().millisecondsSinceEpoch,
                   'user': 'You',
                   'avatar':
-                      'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/images/10.jpg',
+                      'https://kqlonwcsjrirgmeddoze.supabase.co/storage/v1/object/public/images/10.jpg',
                   'content': textController.text.trim(),
                   'media': pickedFile?.path ?? '',
                   'likes': 0,
@@ -238,7 +238,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 'text': controller.text.trim(),
                 'time': 'Just now',
                 'avatar':
-                    'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public/images/10.jpg',
+                    'https://kqlonwcsjrirgmeddoze.supabase.co/storage/v1/object/public/images/10.jpg',
               };
               setModalState(() => comments.add(newCmt));
               setState(() {});
@@ -484,5 +484,3 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 }
-
-

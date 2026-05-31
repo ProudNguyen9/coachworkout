@@ -1,4 +1,5 @@
-import 'user_model.dart';
+import 'package:coach_workout/features/auth/data/models/user_model.dart';
+
 import 'message_model.dart';
 
 class ConversationModel {
@@ -58,5 +59,3 @@ class ConversationModel {
     );
   }
 }
-
-

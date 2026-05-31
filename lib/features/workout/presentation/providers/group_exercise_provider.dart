@@ -54,9 +54,6 @@ class GroupExerciseProvider with ChangeNotifier {
 
   /// 🔹 Lấy danh sách item theo groupId (có cache)
   Future<void> fetchItemGroupExercises(String groupId) async {
-    // ✅ Nếu đã có trong cache thì khỏi gọi lại Supabase
-    if (_groupItemsCache.containsKey(groupId)) return;
-
     _isLoading = true;
     notifyListeners();
 
@@ -128,10 +125,13 @@ class GroupExerciseProvider with ChangeNotifier {
 
     return "${totalCalories.round()}";
   }
+
   /// 🔹 Chèn bài "nghỉ" động giữa các bài tập
   ///  - Nghỉ 20s giữa các bài tập
   ///  - Nghỉ 15s giữa các set (nếu cần)
-  List<GroupExerciseItem> insertRestItems(List<GroupExerciseItem> originalList) {
+  List<GroupExerciseItem> insertRestItems(
+    List<GroupExerciseItem> originalList,
+  ) {
     final List<GroupExerciseItem> result = [];
 
     for (int i = 0; i < originalList.length; i++) {
@@ -194,9 +194,4 @@ class GroupExerciseProvider with ChangeNotifier {
 
     return result;
   }
-
-  
-
 }
-
-

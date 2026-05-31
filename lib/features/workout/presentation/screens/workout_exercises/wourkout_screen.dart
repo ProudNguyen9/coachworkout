@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coach_workout/core/services/local_notification_service.dart';
 import 'package:coach_workout/core/services/supabase_service.dart';
 import 'package:coach_workout/features/workout/presentation/providers/group_exercise_provider.dart';
 import 'package:coach_workout/utils/utils.dart';
@@ -12,7 +13,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -153,6 +153,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           time: item.durationSeconds,
                           description: item.description ?? "",
                           exerciseId: item.exerciseId,
+                          mediaUrl: item.mediaUrl,
                         );
                       },
                     ),
@@ -260,6 +261,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     required int? time,
     required String description,
     required String exerciseId,
+    required String? mediaUrl,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -269,12 +271,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  "assets/fullbody1.png",
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.cover,
-                ),
+                child: _exerciseThumbnail(mediaUrl),
               ),
               const Gap(16),
               Expanded(
@@ -316,6 +313,40 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
+  Widget _exerciseThumbnail(String? mediaUrl) {
+    final url = mediaUrl ?? '';
+    final isImage = RegExp(
+      r'\.(png|jpe?g|webp|gif)(\?.*)?$',
+      caseSensitive: false,
+    ).hasMatch(url);
+
+    if (url.isNotEmpty && isImage) {
+      return Image.network(
+        url,
+        width: 90,
+        height: 90,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _thumbnailFallback(),
+      );
+    }
+
+    return _thumbnailFallback();
+  }
+
+  Widget _thumbnailFallback() {
+    return Container(
+      width: 90,
+      height: 90,
+      color: Colors.grey.shade200,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.fitness_center,
+        color: context.colorScheme.primary,
+        size: 34,
+      ),
+    );
+  }
+
   /// ================= TAG =================
   Widget _tag(IconData icon, String text, Color color) {
     return Row(
@@ -330,39 +361,77 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   /// ================= FAB =================
   Widget _buildFloatingButtons(BuildContext context) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.9,
-      height: 56,
+      width: MediaQuery.of(context).size.width - 32,
+      height: 54,
       child: Row(
         children: [
-          FloatingActionButton.extended(
-            icon: const FaIcon(
-              FontAwesomeIcons.calendarPlus,
-              color: Colors.white,
-              size: 18,
-            ),
-            onPressed: () {
-              showMultiDatePickerBottomSheet(context, widget.groupId);
-            },
-            backgroundColor: context.colorScheme.primary,
-            label: Text("workout.add_to_schedule".tr()),
-          ),
-          const Gap(10),
-          FloatingActionButton.extended(
-            icon: const FaIcon(
-              FontAwesomeIcons.play,
-              color: Colors.white,
-              size: 18,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WorkoutSession(groupId: widget.groupId),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                showMultiDatePickerBottomSheet(context, widget.groupId);
+              },
+              icon: const FaIcon(
+                FontAwesomeIcons.calendarPlus,
+                color: Colors.white,
+                size: 15,
+              ),
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "workout.add_to_schedule".tr(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              );
-            },
-            backgroundColor: context.colorScheme.primary,
-            label: Text("workout.start_now".tr()),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colorScheme.primary,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shadowColor: Colors.black26,
+                minimumSize: const Size.fromHeight(54),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+            ),
+          ),
+          const Gap(12),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => WorkoutSession(groupId: widget.groupId),
+                  ),
+                );
+              },
+              icon: const FaIcon(
+                FontAwesomeIcons.play,
+                color: Colors.white,
+                size: 15,
+              ),
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  "workout.start_now".tr(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colorScheme.primary,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shadowColor: Colors.black26,
+                minimumSize: const Size.fromHeight(54),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -395,7 +464,7 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "Workout Schedule",
+                        "Lịch luyện tập",
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -434,7 +503,7 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                           selectionColor: context.colorScheme.primary,
                           todayHighlightColor: Colors.green,
                           rangeSelectionColor: context.colorScheme.primary
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           minDate: DateTime.now(),
 
                           startRangeSelectionColor: context.colorScheme.primary,
@@ -452,7 +521,7 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                     child: selectedDays.isEmpty
                         ? const Center(
                             child: Text(
-                              "No days selected yet",
+                              "Chưa chọn ngày tập nào",
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 16,
@@ -466,7 +535,8 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                                       ..sort((a, b) => a.compareTo(b)))
                                     .map((day) {
                                       final formatted = DateFormat(
-                                        'EEE, MMM d, yyyy',
+                                        'EEEE, dd/MM/yyyy',
+                                        'vi',
                                       ).format(day);
                                       return Card(
                                         margin: const EdgeInsets.symmetric(
@@ -515,7 +585,9 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                         if (selectedDays.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Please select at least one day'),
+                              content: Text(
+                                'Vui lòng chọn ít nhất một ngày tập',
+                              ),
                             ),
                           );
                           return;
@@ -540,7 +612,7 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                                     ),
                                     SizedBox(height: 20),
                                     Text(
-                                      "Adding your schedule, please wait…",
+                                      "Đang lưu lịch tập, vui lòng đợi…",
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
@@ -557,10 +629,13 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                           await SupabaseService().createUserTrainingFromGroup(
                             groupExerciseId: groupid,
                             title:
-                                "My ${selectedDays.toList().length}-Day Workout Plan",
+                                "Lịch tập ${selectedDays.toList().length} ngày của tôi",
                             selectedDays: selectedDays.toList(),
                           );
+                          await LocalNotificationService.instance
+                              .syncTodayWorkoutReminders();
 
+                          if (!context.mounted) return;
                           Navigator.pop(context); // close loading
                           Navigator.pop(
                             context,
@@ -569,18 +644,15 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Workout plan created successfully!',
-                              ),
+                              content: Text('Đã lưu lịch tập thành công!'),
                             ),
                           );
                         } catch (e) {
+                          if (!context.mounted) return;
                           Navigator.pop(context); // close loading on error
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                'Failed to create workout plan: $e',
-                              ),
+                              content: Text('Lưu lịch tập thất bại: $e'),
                             ),
                           );
                         }
@@ -594,7 +666,7 @@ void showMultiDatePickerBottomSheet(BuildContext context, String groupid) {
                         ),
                       ),
                       child: Text(
-                        "Save Selected Days",
+                        "Lưu ngày đã chọn",
                         style: GoogleFonts.poppins(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -620,6 +692,7 @@ void showExerciseDetail(
   int? time,
   String groupId,
 ) async {
+  final navigatorContext = Navigator.of(context).context;
   final dir = await getApplicationDocumentsDirectory();
 
   final filePath = "${dir.path}/videos/$groupId/$exerciseId.mp4";
@@ -630,7 +703,8 @@ void showExerciseDetail(
   debugPrint("📁 Exists: ${file.existsSync()}");
 
   showModalBottomSheet(
-    context: context,
+    // ignore: use_build_context_synchronously
+    context: navigatorContext,
     isScrollControlled: true,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
@@ -753,5 +827,3 @@ class _ExerciseDetailSheetState extends State<_ExerciseDetailSheet> {
     );
   }
 }
-
-

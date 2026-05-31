@@ -1,6 +1,7 @@
+import 'package:coach_workout/core/services/supabase_service.dart';
+import 'package:coach_workout/core/services/workout_streak_service.dart';
 import 'package:coach_workout/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -15,30 +16,52 @@ class _MyCalendarState extends State<MyCalendar> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final Set<DateTime> workoutDays = {
-    DateTime(2025, 10, 1),
-    DateTime(2025, 10, 2),
-    DateTime(2025, 10, 3),
-    DateTime(2025, 10, 5),
-    DateTime(2025, 10, 6),
-  };
+  Set<String> workoutDayKeys = {};
+  Set<String> plannedDayKeys = {};
+  Set<String> restDayKeys = {};
 
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   @override
-  Widget build(BuildContext context) {
-    /// ✅ QUAN TRỌNG: set locale cho DateFormat
-    Intl.defaultLocale = context.locale.languageCode;
+  void initState() {
+    super.initState();
+    _syncCalendarStatus();
+  }
 
+  Future<void> _syncCalendarStatus() async {
+    final localWorkoutKeys = WorkoutStreakService.getWorkoutDayKeys();
+    setState(() => workoutDayKeys = localWorkoutKeys);
+
+    try {
+      final status = await SupabaseService().getMyCalendarTrainingStatus();
+      if (!mounted) return;
+      setState(() {
+        plannedDayKeys = status['planned'] ?? <String>{};
+        restDayKeys = status['rest'] ?? <String>{};
+        workoutDayKeys = {
+          ...localWorkoutKeys,
+          ...(status['completed'] ?? <String>{}),
+        };
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => workoutDayKeys = localWorkoutKeys);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       width: context.deviceSize.width,
-      height: 340,
+      height: 300,
       child: TableCalendar(
         locale: context.locale.languageCode, // ✅ QUAN TRỌNG
         firstDay: DateTime.utc(2020, 1, 1),
         lastDay: DateTime.utc(2030, 12, 31),
         focusedDay: _focusedDay,
+        daysOfWeekHeight: 28,
+        rowHeight: 36,
 
         selectedDayPredicate: (day) =>
             _selectedDay != null && _isSameDay(day, _selectedDay!),
@@ -55,6 +78,9 @@ class _MyCalendarState extends State<MyCalendar> {
         headerStyle: const HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
+          headerPadding: EdgeInsets.symmetric(vertical: 6),
+          leftChevronPadding: EdgeInsets.zero,
+          rightChevronPadding: EdgeInsets.zero,
           titleTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
 
@@ -74,7 +100,12 @@ class _MyCalendarState extends State<MyCalendar> {
 
         calendarBuilders: CalendarBuilders(
           markerBuilder: (context, day, events) {
-            final hasWorkout = workoutDays.any((d) => _isSameDay(d, day));
+            final dayKey =
+                '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+            final hasWorkout = workoutDayKeys.contains(dayKey);
+            final hasPlan = plannedDayKeys.contains(dayKey);
+            final isRestDay = restDayKeys.contains(dayKey);
+
             if (hasWorkout) {
               return const Positioned(
                 bottom: 4,
@@ -85,6 +116,29 @@ class _MyCalendarState extends State<MyCalendar> {
                 ),
               );
             }
+
+            if (isRestDay) {
+              return const Positioned(
+                bottom: 4,
+                child: Icon(
+                  Icons.self_improvement,
+                  color: Colors.green,
+                  size: 16,
+                ),
+              );
+            }
+
+            if (hasPlan) {
+              return const Positioned(
+                bottom: 4,
+                child: Icon(
+                  Icons.fitness_center,
+                  color: Colors.blueAccent,
+                  size: 16,
+                ),
+              );
+            }
+
             return null;
           },
         ),
@@ -92,5 +146,3 @@ class _MyCalendarState extends State<MyCalendar> {
     );
   }
 }
-
-

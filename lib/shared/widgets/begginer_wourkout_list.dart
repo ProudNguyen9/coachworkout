@@ -2,6 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+const String _oldSupabaseStorageBaseUrl =
+    'https://zsqeewnrycesouhunxxk.supabase.co/storage/v1/object/public';
+const String _newSupabaseStorageBaseUrl =
+    'https://kqlonwcsjrirgmeddoze.supabase.co/storage/v1/object/public';
+
+String _normalizeStorageUrl(String url) {
+  if (url.isEmpty) return url;
+  return url.replaceFirst(
+    _oldSupabaseStorageBaseUrl,
+    _newSupabaseStorageBaseUrl,
+  );
+}
+
 class ItemListBeginner extends StatelessWidget {
   final String? path;
   final String? title;
@@ -18,9 +31,9 @@ class ItemListBeginner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final safePath = (path != null && path!.isNotEmpty)
-        ? path!
-        : 'https://via.placeholder.com/150'; // Ảnh mặc định nếu null
+    final safePath = _normalizeStorageUrl(
+      (path != null && path!.isNotEmpty) ? path! : '',
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -33,35 +46,33 @@ class ItemListBeginner extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(18),
-                  child: CachedNetworkImage(
-                    imageUrl: safePath,
-                    width: 65,
-                    height: 65,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      width: 65,
-                      height: 65,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      width: 65,
-                      height: 65,
-                      child: const Icon(Icons.image_not_supported),
-                    ),
-                    fadeInDuration: const Duration(milliseconds: 250),
-                    memCacheHeight: 300,
-                    memCacheWidth: 300,
-                  ),
+                  child: safePath.isEmpty
+                      ? _fallbackImage()
+                      : CachedNetworkImage(
+                          imageUrl: safePath,
+                          width: 65,
+                          height: 65,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 65,
+                            height: 65,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              _fallbackImage(),
+                          fadeInDuration: const Duration(milliseconds: 250),
+                          memCacheHeight: 300,
+                          memCacheWidth: 300,
+                        ),
                 ),
                 const Gap(12),
                 Expanded(
@@ -98,6 +109,14 @@ class ItemListBeginner extends StatelessWidget {
       ),
     );
   }
+
+  Widget _fallbackImage() {
+    return Container(
+      width: 65,
+      height: 65,
+      alignment: Alignment.center,
+      color: Colors.grey[300],
+      child: const Icon(Icons.fitness_center, color: Colors.grey),
+    );
+  }
 }
-
-

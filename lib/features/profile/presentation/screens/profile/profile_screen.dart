@@ -1,3 +1,4 @@
+import 'package:coach_workout/features/profile/presentation/screens/training_schedule/my_training_schedule_screen.dart';
 import 'package:coach_workout/utils/extensions.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isOwner = true;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -91,6 +91,10 @@ class ProfileScreen extends StatelessWidget {
 
               const Gap(20),
 
+              _ScheduleButton(),
+
+              const Gap(20),
+
               TextTile(title: 'profile_screen.activities'.tr()),
 
               SizedBox(
@@ -154,4 +158,37 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+class _ScheduleButton extends StatelessWidget {
+  const _ScheduleButton();
 
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MyTrainingScheduleScreen()),
+          );
+        },
+        icon: const Icon(Icons.calendar_month, color: Colors.white),
+        label: Text(
+          'Lịch luyện tập của tôi',
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: context.colorScheme.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+      ),
+    );
+  }
+}

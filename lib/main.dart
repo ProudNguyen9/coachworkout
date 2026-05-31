@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'core/services/local_notification_service.dart';
+import 'core/services/workout_streak_service.dart';
 import 'app/app.dart'; // file CoachWorkout.dart
 import 'config/config.dart';
 import 'providers/provider.dart';
@@ -15,12 +17,16 @@ Future<void> main() async {
   await initializeDateFormatting('vi');
   await initializeDateFormatting('en');
 
+  await WorkoutStreakService.init();
+
   // ✅ Khởi tạo Supabase
   await Supabase.initialize(
-    url: 'https://zsqeewnrycesouhunxxk.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzcWVld25yeWNlc291aHVueHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3Mjc2NDMsImV4cCI6MjA3NjMwMzY0M30.NT9XbVC0astMhOuqxZtqv03Nh4t3c1eV2uo6b0AY5Wg',
+    url: 'https://kqlonwcsjrirgmeddoze.supabase.co',
+    anonKey: 'sb_publishable_-HaWoAEZzjAwxwSKBQgqKA_RqAvCgnI',
   );
+
+  await LocalNotificationService.instance.init();
+  await LocalNotificationService.instance.syncTodayWorkoutReminders();
 
   // ✅ Ẩn thanh trạng thái
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -54,5 +60,3 @@ Future<void> main() async {
     ),
   );
 }
-
-

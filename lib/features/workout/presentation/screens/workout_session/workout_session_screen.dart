@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:coach_workout/core/services/local_notification_service.dart';
+import 'package:coach_workout/core/services/supabase_service.dart';
+import 'package:coach_workout/core/services/workout_streak_service.dart';
 import 'package:coach_workout/features/workout/data/models/groupexerciseitem.dart';
 import 'package:coach_workout/features/workout/presentation/providers/group_exercise_provider.dart';
-import 'package:coach_workout/features/home/presentation/screens/home/home_screen.dart';
 import 'package:coach_workout/features/root/presentation/screens/root/root_screen.dart';
 import 'package:coach_workout/features/workout/presentation/screens/workout_library/workout_library.dart';
+import 'package:coach_workout/features/workout/presentation/screens/animated_countdown/animated_countdown.dart';
 import 'package:confetti/confetti.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +17,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-import 'animated_countdown.dart';
 
 class WorkoutSession extends StatefulWidget {
   final String groupId;
@@ -77,17 +79,27 @@ class _WorkoutSessionState extends State<WorkoutSession> {
     final filePath =
         "${dir.path}/videos/${widget.groupId}/${current.exerciseId}.mp4";
     final file = File(filePath);
+    final hasLocalFile = file.existsSync();
+    final hasRemoteVideo =
+        current.mediaUrl != null && current.mediaUrl!.isNotEmpty;
 
     debugPrint("🎥 Play local video: $filePath");
-    debugPrint("📁 Exists: ${file.existsSync()}");
+    debugPrint("📁 Exists: $hasLocalFile");
 
-    if (!file.existsSync()) {
-      debugPrint("❌ Video not found, skip");
+    if (hasLocalFile) {
+      _controller = VideoPlayerController.file(file)..setLooping(true);
+    } else if (hasRemoteVideo) {
+      debugPrint(
+        "🌐 Local video missing, fallback network: ${current.mediaUrl}",
+      );
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(current.mediaUrl!),
+      )..setLooping(true);
+    } else {
+      debugPrint("❌ Video not found locally and media_url is empty, skip");
       _controller = null;
       return;
     }
-
-    _controller = VideoPlayerController.file(file)..setLooping(true);
 
     await _controller!.initialize();
 
@@ -95,7 +107,7 @@ class _WorkoutSessionState extends State<WorkoutSession> {
       setState(() {});
     }
 
-    /// 🔥 preload video kế tiếp (LOCAL)
+    /// 🔥 preload video kế tiếp: ưu tiên LOCAL, thiếu thì fallback NETWORK
     if (currentIndex + 1 < exercises.length) {
       final next = exercises[currentIndex + 1];
 
@@ -103,9 +115,16 @@ class _WorkoutSessionState extends State<WorkoutSession> {
         final nextPath =
             "${dir.path}/videos/${widget.groupId}/${next.exerciseId}.mp4";
         final nextFile = File(nextPath);
+        final hasNextRemoteVideo =
+            next.mediaUrl != null && next.mediaUrl!.isNotEmpty;
 
         if (nextFile.existsSync()) {
           _nextController = VideoPlayerController.file(nextFile);
+          await _nextController!.initialize();
+        } else if (hasNextRemoteVideo) {
+          _nextController = VideoPlayerController.networkUrl(
+            Uri.parse(next.mediaUrl!),
+          );
           await _nextController!.initialize();
         }
       }
@@ -138,6 +157,9 @@ class _WorkoutSessionState extends State<WorkoutSession> {
     await _controller?.dispose();
 
     if (currentIndex + 1 >= exercises.length) {
+      await WorkoutStreakService.markWorkoutDone();
+      await SupabaseService().markTodayScheduleDayCompleted();
+      await LocalNotificationService.instance.cancelTodayWorkoutReminders();
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -299,7 +321,7 @@ class _WorkoutSessionState extends State<WorkoutSession> {
                             ),
                           ),
                           progressColor: primary,
-                          backgroundColor: primary.withOpacity(0.2),
+                          backgroundColor: primary.withValues(alpha: 0.2),
                           circularStrokeCap: CircularStrokeCap.round,
                         ),
                       ],
@@ -357,7 +379,7 @@ class _WorkoutSessionState extends State<WorkoutSession> {
       width: 70,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: primary.withOpacity(0.1),
+        color: primary.withValues(alpha: 0.1),
       ),
       child: Icon(
         isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
@@ -609,4 +631,3 @@ class _CelebrationScreenState extends State<CelebrationScreen> {
     );
   }
 }
-

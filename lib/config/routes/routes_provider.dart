@@ -14,7 +14,7 @@ class RoutesNotifier with ChangeNotifier {
       final session = data.session;
 
       if (event == AuthChangeEvent.signedIn && session != null) {
-        navigationKey.currentContext?.go(RouteLocation.onboarding);
+        navigationKey.currentContext?.go(RouteLocation.root);
       } else if (event == AuthChangeEvent.signedOut) {
         navigationKey.currentContext?.go(RouteLocation.login);
       }
@@ -23,5 +23,3 @@ class RoutesNotifier with ChangeNotifier {
 
   late final GoRouter router = getAppRoutes(navigationKey);
 }
-
-

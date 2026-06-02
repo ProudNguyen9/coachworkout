@@ -1,4 +1,4 @@
-# Coach Workout
+<img width="1080" height="2340" alt="screenshot-1780404870613" src="https://github.com/user-attachments/assets/e0f54156-604e-4a41-9525-3722a6f31635" /><img width="1080" height="2340" alt="screenshot-1780404927853" src="https://github.com/user-attachments/assets/fd400412-a61d-45d1-b9b2-f3604628fab4" /># Coach Workout
 
 Coach Workout là ứng dụng Flutter hỗ trợ tập luyện cá nhân, theo dõi lịch tập, streak, bài tập theo nhóm cơ và AI Coach. Ứng dụng dùng Supabase để quản lý xác thực, hồ sơ người dùng, dữ liệu bài tập và lịch tập; đồng thời tích hợp AI API tương thích OpenAI để tư vấn tập luyện, dinh dưỡng và phục hồi.
 
@@ -71,22 +71,40 @@ assets/
 Kiểm tra môi trường:
 
 ```bash
-flutter doctor
-```
+
+
 <p align="center">
-  <img width="250" src="https://github.com/user-attachments/assets/b366598c-def5-4493-8dcd-b398d4838083" />
-  <img width="250" src="https://github.com/user-attachments/assets/f67aaabe-66ef-404e-b070-29b395a48ef9" />
-  <img width="250" src="https://github.com/user-attachments/assets/34a46622-2f9c-41a0-bc91-e76508843f05" />
+  <img width="220" src="https://github.com/user-attachments/assets/37800970-7810-4691-a975-b82e481a21df" />
+  <img width="220" src="https://github.com/user-attachments/assets/ab4ba781-79bc-4cbd-8fac-ce6ffffd35e0" />
+  <img width="220" src="https://github.com/user-attachments/assets/ee38131b-4425-424c-b3d9-61356c2c2a4c" />
 </p>
 
 <p align="center">
-  <img width="250" src="https://github.com/user-attachments/assets/f6bf326f-691e-4aff-a3c7-6b06bc036907" />
-  <img width="250" src="https://github.com/user-attachments/assets/c73d969b-0819-42e6-ac37-f6bef5874012" />
-  <img width="250" src="https://github.com/user-attachments/assets/b056ea52-3b92-4b92-9745-bbf5d8271cd4" />
+  <img width="220" src="https://github.com/user-attachments/assets/d2d2d6df-0531-4ed0-9bc1-b7a4c4c545c7" />
+  <img width="220" src="https://github.com/user-attachments/assets/167675bb-e8ae-4104-8052-8b2a01af0350" />
+  <img width="220" src="https://github.com/user-attachments/assets/a5eb3431-b50b-4422-91ad-5c0dbdb98a79" />
 </p>
 
 <p align="center">
-  <img width="250" src="https://github.com/user-attachments/assets/e32d552c-c472-421a-92bf-06c907fa1f38" />
-  <img width="250" src="https://github.com/user-attachments/assets/764a6c94-3159-405f-8563-1c7c1e1638c6" />
-  <img width="250" src="https://github.com/user-attachments/assets/a8f2ed42-cb11-46ff-b67c-213e99750337" />
+  <img width="220" src="https://github.com/user-attachments/assets/15907027-8631-442b-9871-bf6784e27cea" />
+  <img width="220" src="https://github.com/user-attachments/assets/ba62ff5f-3710-4697-a8da-ab110a78f20d" />
+  <img width="220" src="https://github.com/user-attachments/assets/1b121044-6990-45dc-80d1-fa5450eb21a0" />
 </p>
+
+<p align="center">
+  <img width="220" src="https://github.com/user-attachments/assets/1f051126-c503-4526-8999-5800decec1b8" />
+  <img width="220" src="https://github.com/user-attachments/assets/067ffe77-5432-4128-9569-3fc934385e0f" />
+  <img width="220" src="https://github.com/user-attachments/assets/93bc7037-7746-4799-9d0d-d020aaa841af" />
+</p>
+
+<p align="center">
+  <img width="220" src="https://github.com/user-attachments/assets/b7c0486a-d271-4c29-a379-da937f315379" />
+  <img width="220" src="https://github.com/user-attachments/assets/afe64c98-3907-46e3-a006-ffb5107c082d" />
+  <img width="220" src="https://github.com/user-attachments/assets/0081bcab-e867-451a-8351-2fd537943faf" />
+</p>
+
+<p align="center">
+  <img width="220" src="https://github.com/user-attachments/assets/a9afe6a8-70ca-42ad-83e8-f2e0b2244fb9" />
+  <img width="220" src="https://github.com/user-attachments/assets/5f345d51-b4f3-444b-a8a2-059a21234952" />
+</p>
+

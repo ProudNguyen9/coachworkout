@@ -39,16 +39,22 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
   // ==============================
   String poseUrl = "http://192.168.2.9:8000/analyze_pose";
 
-  final String supabaseUrl = "https://kqlonwcsjrirgmeddoze.supabase.co";
-  final String supabaseKey = "sb_publishable_-HaWoAEZzjAwxwSKBQgqKA_RqAvCgnI";
-  final String supabaseBucket = "AIserver";
+  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const String supabaseKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const String supabaseBucket = String.fromEnvironment(
+    'SUPABASE_STORAGE_BUCKET',
+    defaultValue: 'AIserver',
+  );
 
   // ==============================
   // 🔹 OpenAI Compatible API Config
   // ==============================
-  final String aiBaseUrl = "https://routerapi.vovantin.online/v1";
-  final String aiApiKey = "sk-YixKe9PPmENYErYcpJQuB1wN0OlYJnW8LOAhnQk00CO36cZY";
-  final String aiModel = "gpt-5.5";
+  static const String aiBaseUrl = String.fromEnvironment('AI_BASE_URL');
+  static const String aiApiKey = String.fromEnvironment('AI_API_KEY');
+  static const String aiModel = String.fromEnvironment(
+    'AI_MODEL',
+    defaultValue: 'gpt-5.5',
+  );
 
   // Modern Color Palette (Cyan-inspired: Light Cyan, Blue, White)
   static const Color primaryColor = Color(0xFF26C6DA); // Cyan mới cho fitness
@@ -267,6 +273,13 @@ class _CustomChatScreenAIState extends State<CustomChatScreenAI>
   // 🔹 OpenAI Compatible API
   // =====================================================
   Future<String> _callOpenAICompatibleAPI(String prompt) async {
+    if (aiBaseUrl.isEmpty || aiApiKey.isEmpty) {
+      throw StateError(
+        'Missing AI config. Run with --dart-define-from-file=env.json '
+        'or pass AI_BASE_URL and AI_API_KEY via --dart-define.',
+      );
+    }
+
     final systemPrompt = '''
 Bạn là AI Coach cá nhân trong ứng dụng tập luyện.
 
@@ -337,6 +350,13 @@ CÁCH TRẢ LỜI:
   // 🔹 Upload & Pose API (giữ nguyên)
   // =====================================================
   Future<String> _uploadToSupabase(File file) async {
+    if (supabaseUrl.isEmpty || supabaseKey.isEmpty) {
+      throw StateError(
+        'Missing Supabase config. Run with --dart-define-from-file=env.json '
+        'or pass SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define.',
+      );
+    }
+
     final fileName =
         "${DateTime.now().millisecondsSinceEpoch}_${p.basename(file.path)}";
     final ext = p.extension(file.path).toLowerCase();

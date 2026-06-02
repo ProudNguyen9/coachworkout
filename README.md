@@ -89,32 +89,66 @@ cd coach_workout
 flutter pub get
 ```
 
-3. Chạy app:
+3. Tạo file cấu hình môi trường:
 
 ```bash
-flutter run
+cp env.json.example env.json
 ```
 
-4. Build Android APK:
+Điền giá trị thật vào `env.json`. Không commit `env.json`, `.env` hoặc bất kỳ file secret thật nào lên Git.
+
+4. Chạy app:
 
 ```bash
-flutter build apk
+flutter run --dart-define-from-file=env.json
 ```
 
-5. Build Android App Bundle:
+5. Build Android APK:
 
 ```bash
-flutter build appbundle
+flutter build apk --dart-define-from-file=env.json
 ```
+
+6. Build Android App Bundle:
+
+```bash
+flutter build appbundle --dart-define-from-file=env.json
+```
+
+## Cấu hình biến môi trường và bảo mật
+
+Các key/API endpoint không được hardcode trực tiếp trong source code. Dự án đọc cấu hình bằng `String.fromEnvironment(...)`, truyền qua `--dart-define-from-file=env.json` khi chạy hoặc build.
+
+Các biến cần có:
+
+- `SUPABASE_URL`: URL project Supabase.
+- `SUPABASE_ANON_KEY`: Publishable/anon key của Supabase.
+- `SUPABASE_STORAGE_BUCKET`: Bucket dùng để upload ảnh AI Coach, mặc định `AIserver`.
+- `AI_BASE_URL`: Base URL API AI tương thích OpenAI, ví dụ endpoint kết thúc bằng `/v1`.
+- `AI_API_KEY`: API key AI.
+- `AI_MODEL`: Model AI, mặc định `gpt-5.5`.
+
+File mẫu:
+
+- `.env.example`
+- `env.json.example`
+
+Khuyến nghị bảo mật:
+
+- Không commit `.env`, `.env.*`, `env.json` hoặc key thật lên repository.
+- Nếu key từng bị commit công khai, hãy rotate/revoke key ngay trong Supabase hoặc nhà cung cấp AI.
+- Với production, nên proxy các API cần secret qua backend/serverless function thay vì để key nhạy cảm trong mobile app.
+- Supabase anon key có thể dùng ở client, nhưng phải cấu hình Row Level Security và policy đúng để hạn chế quyền truy cập dữ liệu.
+- Không log API key, token đăng nhập hoặc dữ liệu cá nhân của người dùng.
 
 ## Cấu hình Supabase
 
-Supabase được khởi tạo trong `lib/main.dart` bằng `Supabase.initialize(...)`.
+Supabase được khởi tạo trong `lib/main.dart` bằng `Supabase.initialize(...)` và lấy `SUPABASE_URL`, `SUPABASE_ANON_KEY` từ biến môi trường build-time.
 
 Bạn cần đảm bảo các thông tin sau đúng với project Supabase của mình:
 
-- `url`: URL project Supabase.
-- `anonKey`: Publishable/anon key.
+- `SUPABASE_URL`: URL project Supabase.
+- `SUPABASE_ANON_KEY`: Publishable/anon key.
 - Các bảng dữ liệu bài tập, lịch tập, hồ sơ người dùng đã được tạo đúng schema.
 
 Các service chính liên quan Supabase nằm tại:
@@ -122,7 +156,7 @@ Các service chính liên quan Supabase nằm tại:
 - `lib/core/services/supabase_service.dart`
 - `lib/core/services/workout_streak_service.dart`
 
-> Lưu ý: Khi đưa app lên production, không nên hardcode key trực tiếp trong source. Nên chuyển sang file cấu hình môi trường hoặc cơ chế secret/config an toàn hơn.
+> Lưu ý: Không đưa service role key vào mobile app. Chỉ dùng anon/publishable key kèm RLS/policy phù hợp.
 
 ## Cấu hình AI Coach
 
@@ -132,10 +166,10 @@ AI Coach nằm trong:
 
 Ứng dụng hiện gọi API theo chuẩn OpenAI-compatible endpoint:
 
-- Base URL dạng `/v1`
+- Base URL dạng `/v1`, cấu hình qua `AI_BASE_URL`
 - Endpoint `/chat/completions`
-- Model: `gpt-5.5`
-- Authorization Bearer token
+- Model: cấu hình qua `AI_MODEL`
+- Authorization Bearer token từ `AI_API_KEY`
 
 AI Coach được ràng buộc chỉ trả lời các chủ đề phù hợp:
 
@@ -147,7 +181,7 @@ AI Coach được ràng buộc chỉ trả lời các chủ đề phù hợp:
 
 AI không thay thế bác sĩ/chuyên gia y tế và sẽ khuyên người dùng đi khám nếu có dấu hiệu nguy hiểm như đau ngực, khó thở, chấn thương nặng hoặc chóng mặt.
 
-> Lưu ý bảo mật: API key AI nên được đưa ra khỏi source code trước khi phát hành chính thức.
+> Lưu ý bảo mật: API key AI đã được đưa ra khỏi source code. Nếu app phát hành production, nên gọi AI qua backend để tránh lộ key trong binary mobile.
 
 ## Local Notification
 

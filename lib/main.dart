@@ -19,11 +19,18 @@ Future<void> main() async {
 
   await WorkoutStreakService.init();
 
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    throw StateError(
+      'Missing Supabase config. Run with --dart-define-from-file=env.json '
+      'or pass SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define.',
+    );
+  }
+
   // ✅ Khởi tạo Supabase
-  await Supabase.initialize(
-    url: 'https://kqlonwcsjrirgmeddoze.supabase.co',
-    anonKey: 'sb_publishable_-HaWoAEZzjAwxwSKBQgqKA_RqAvCgnI',
-  );
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   await LocalNotificationService.instance.init();
   await LocalNotificationService.instance.syncTodayWorkoutReminders();

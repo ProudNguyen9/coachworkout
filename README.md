@@ -1,4 +1,4 @@
-<img width="1080" height="2340" alt="screenshot-1780404870613" src="https://github.com/user-attachments/assets/e0f54156-604e-4a41-9525-3722a6f31635" /><img width="1080" height="2340" alt="screenshot-1780404927853" src="https://github.com/user-attachments/assets/fd400412-a61d-45d1-b9b2-f3604628fab4" /># Coach Workout
+# Coach Workout
 
 Coach Workout là ứng dụng Flutter hỗ trợ tập luyện cá nhân, theo dõi lịch tập, streak, bài tập theo nhóm cơ và AI Coach. Ứng dụng dùng Supabase để quản lý xác thực, hồ sơ người dùng, dữ liệu bài tập và lịch tập; đồng thời tích hợp AI API tương thích OpenAI để tư vấn tập luyện, dinh dưỡng và phục hồi.
 
@@ -67,11 +67,6 @@ assets/
 - Android SDK nếu chạy Android.
 - Xcode nếu chạy iOS/macOS.
 - Một project Supabase đã có schema/table phù hợp với app.
-
-Kiểm tra môi trường:
-
-```bash
-
 
 <p align="center">
   <img width="220" src="https://github.com/user-attachments/assets/37800970-7810-4691-a975-b82e481a21df" />
